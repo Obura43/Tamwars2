@@ -15,13 +15,18 @@ export async function getLeaderboard(
   timeFilter: 'today' | 'week' | 'alltime',
   sideFilter: 'all' | 'WANTAM' | 'TUTAM',
 ): Promise<LeaderboardEntry[]> {
-  const viewName = timeFilter === 'today'
-    ? 'daily_leaderboard'
-    : timeFilter === 'week'
-    ? 'weekly_leaderboard'
-    : 'alltime_leaderboard';
+  const viewName =
+    timeFilter === 'today'
+      ? 'daily_leaderboard'
+      : timeFilter === 'week'
+      ? 'weekly_leaderboard'
+      : 'alltime_leaderboard';
 
-  let query = supabase.from(viewName).select('*').limit(100);
+  let query = supabase
+    .from(viewName)
+    .select('*')
+    .order('rank', { ascending: true })
+    .limit(100);
 
   if (sideFilter !== 'all') {
     query = query.eq('side', sideFilter);
@@ -29,6 +34,10 @@ export async function getLeaderboard(
 
   const { data, error } = await query;
 
-  if (error) return [];
+  if (error) {
+    console.error('Leaderboard error:', error);
+    return [];
+  }
+
   return data ?? [];
 }
