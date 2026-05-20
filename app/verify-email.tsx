@@ -111,16 +111,14 @@ export default function VerifyEmailScreen() {
         ) : null}
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.primaryButton, checking && styles.buttonDisabled]}
-            onPress={handleCheckVerified}
-            disabled={checking}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.primaryButtonText}>
-              {checking ? 'Checking...' : 'I Have Verified My Email'}
-            </Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => router.replace('/login')}
+        >
+          <Text style={styles.primaryButtonText}>
+            Go To Login
+          </Text>
+        </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.secondaryButton, resending && styles.buttonDisabled]}
