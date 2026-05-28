@@ -7,24 +7,29 @@ import DeleteAccount from './Pages/DeleteAccount';
 import PrivacyPolicy from './Pages/PrivacyPolicy';
 import TermsOfUse from './Pages/TermsOfUse';
 
-type RouteKey = '/' | '/privacy' | '/terms' | '/support' | '/delete';
+type RouteKey =
+  | '/'
+  | '/privacy-policy'
+  | '/terms'
+  | '/contact'
+  | '/delete-account';
 
 const routeLabels: Record<RouteKey, string> = {
   '/': 'Home',
-  '/privacy': 'Privacy Policy',
+  '/privacy-policy': 'Privacy Policy',
   '/terms': 'Terms of Use',
-  '/support': 'Contact Support',
-  '/delete': 'Delete Account',
+  '/contact': 'Contact Support',
+  '/delete-account': 'Delete Account',
 };
 
 const normalizeRoute = (pathname: string): RouteKey => {
   const cleaned = pathname.replace(/\/+$/, '') || '/';
 
   switch (cleaned) {
-    case '/privacy':
+    case '/privacy-policy':
     case '/terms':
-    case '/support':
-    case '/delete':
+    case '/contact':
+    case '/delete-account':
       return cleaned;
     default:
       return '/';
@@ -35,7 +40,9 @@ function App() {
   const [prompt, setPrompt] = useState('');
   const [poems, setPoems] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [route, setRoute] = useState<RouteKey>(normalizeRoute(window.location.pathname));
+  const [route, setRoute] = useState<RouteKey>(
+    normalizeRoute(window.location.pathname)
+  );
 
   useEffect(() => {
     const handlePopState = () => {
@@ -63,13 +70,13 @@ function App() {
 
   const pageContent = useMemo(() => {
     switch (route) {
-      case '/privacy':
+      case '/privacy-policy':
         return <PrivacyPolicy />;
       case '/terms':
         return <TermsOfUse />;
-      case '/support':
+      case '/contact':
         return <ContactSupport />;
-      case '/delete':
+      case '/delete-account':
         return <DeleteAccount />;
       default:
         return (
@@ -78,12 +85,15 @@ function App() {
               <div className="flex items-center justify-center gap-3 mb-4">
                 <Heart className="w-8 h-8 text-pink-500" />
               </div>
+
               <h1 className="text-4xl md:text-6xl font-bold mb-4 text-pink-600 font-serif">
                 Rizz Poem Generator
               </h1>
+
               <h2 className="text-xl md:text-2xl text-purple-600 mb-6">
                 AI-Powered Romance Poetry
               </h2>
+
               <p className="text-gray-600 max-w-2xl mx-auto">
                 Enter a prompt and let our AI create romantic poems that blend modern tech
                 with timeless love. Perfect for digital age romance.
@@ -99,6 +109,7 @@ function App() {
                   placeholder="Enter your romantic prompt..."
                   className="flex-1 px-4 py-3 rounded-lg border border-pink-200 focus:outline-none focus:border-pink-500 bg-white shadow-sm"
                 />
+
                 <button
                   onClick={handleGenerate}
                   disabled={isGenerating}
@@ -122,6 +133,7 @@ function App() {
                       {poem}
                     </pre>
                   </div>
+
                   <Comments poemId={`rizz-poem-${index}`} />
                 </div>
               ))}
@@ -140,7 +152,9 @@ function App() {
               key={path}
               onClick={() => navigate(path as RouteKey)}
               className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                route === path ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'bg-white text-pink-600 hover:bg-pink-50'
+                route === path
+                  ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20'
+                  : 'bg-white text-pink-600 hover:bg-pink-50'
               }`}
             >
               {label}
