@@ -30,13 +30,17 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { flex: 1, overflow: 'visible' } }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="login" />
         <Stack.Screen name="signup" />
         <Stack.Screen name="verify-email" />
         <Stack.Screen name="profile-setup" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="privacy" />
+        <Stack.Screen name="terms" />
+        <Stack.Screen name="support" />
+        <Stack.Screen name="delete-account" />
         <Stack.Screen name="battle/[side]" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="result/[sessionId]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="+not-found" />
