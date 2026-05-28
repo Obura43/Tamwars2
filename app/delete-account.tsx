@@ -1,6 +1,6 @@
 export default function DeleteAccount() {
   return (
-    <main className="min-h-screen bg-slate-950 text-white px-6 py-10">
+    <main className="min-h-screen h-screen overflow-y-auto bg-slate-950 text-white px-6 py-10">
       <div className="max-w-4xl mx-auto space-y-8">
 
         <div className="space-y-3">
