@@ -3,9 +3,10 @@ import { supabase } from '@/lib/supabase';
 export async function deleteMyAccount() {
   const {
     data: { session },
+    error: sessionError,
   } = await supabase.auth.getSession();
 
-  if (!session) {
+  if (sessionError || !session) {
     throw new Error('You must be logged in to delete your account.');
   }
 
@@ -16,8 +17,11 @@ export async function deleteMyAccount() {
   });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(error.message || 'Failed to delete account.');
   }
+
+  // Important: clear local cached session after deleting auth user
+  await supabase.auth.signOut();
 
   return data;
 }

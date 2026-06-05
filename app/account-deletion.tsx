@@ -29,7 +29,7 @@ const handleDeleteAccount = async () => {
       Alert.alert('Account Deleted', 'Your account has been successfully deleted.');
     }
 
-    router.replace('/');
+    router.replace('/login');
   } catch (error: any) {
     const message = error?.message || 'Could not delete account.';
 
