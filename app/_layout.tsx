@@ -5,6 +5,7 @@ import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider } from '@/lib/auth-context';
 import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold, Inter_900Black } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
+import BackgroundMusic from '@/src/components/BackgroundMusic';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -29,7 +30,8 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
+      <AuthProvider>
+      <BackgroundMusic />
       <Stack screenOptions={{ headerShown: false, contentStyle: { flex: 1, overflow: 'visible' } }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="login" />
@@ -37,10 +39,11 @@ export default function RootLayout() {
         <Stack.Screen name="verify-email" />
         <Stack.Screen name="profile-setup" />
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="privacy" />
-        <Stack.Screen name="terms" />
-        <Stack.Screen name="support" />
-        <Stack.Screen name="delete-account" />
+        <Stack.Screen name="privacy-policy" />
+        <Stack.Screen name="terms-of-use" />
+        <Stack.Screen name="contact" />
+        <Stack.Screen name="settings" />
+        <Stack.Screen name="account-deletion" />
         <Stack.Screen name="battle/[side]" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="result/[sessionId]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="+not-found" />
