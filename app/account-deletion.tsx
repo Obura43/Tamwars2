@@ -1,4 +1,6 @@
-import { ScrollView, Text, View, Pressable, Linking } from 'react-native';
+import { ScrollView, Alert, Text, View, Pressable, Linking } from 'react-native';
+import { router } from 'expo-router';
+import { deleteMyAccount } from '@/services/deleteAccountService';
 
 export default function AccountDeletionPage() {
   const email = 'tamwar@poll.co.ke';
@@ -8,7 +10,39 @@ export default function AccountDeletionPage() {
       `mailto:${email}?subject=Delete My TamWar Account`
     );
   };
+const handleDeleteAccount = () => {
+  Alert.alert(
+    'Delete Account',
+    'This will permanently delete your TamWar account, profile, scores and supporter data. This action cannot be undone.',
+    [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteMyAccount();
 
+            Alert.alert(
+              'Account Deleted',
+              'Your account has been successfully deleted.'
+            );
+
+            router.replace('/');
+          } catch (error: any) {
+            Alert.alert(
+              'Deletion Failed',
+              error?.message || 'Could not delete account.'
+            );
+          }
+        },
+      },
+    ]
+  );
+};
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: '#111111' }}
@@ -99,26 +133,46 @@ export default function AccountDeletionPage() {
         tamwar@poll.co.ke
       </Section>
 
-      <Pressable
-        onPress={requestDeletion}
+        <Pressable
+        onPress={handleDeleteAccount}
         style={{
-          backgroundColor: '#dc2626',
-          paddingVertical: 16,
-          borderRadius: 12,
-          marginTop: 20,
-          alignItems: 'center',
+            backgroundColor: '#dc2626',
+            paddingVertical: 16,
+            borderRadius: 12,
+            marginTop: 20,
+            alignItems: 'center',
         }}
-      >
+        >
         <Text
-          style={{
+            style={{
             color: '#ffffff',
             fontSize: 18,
             fontWeight: 'bold',
-          }}
+            }}
         >
-          Request Account Deletion
+            Delete My Account
         </Text>
-      </Pressable>
+        </Pressable>
+        <Pressable
+        onPress={() =>
+            Linking.openURL(
+            'mailto:tamwar@poll.co.ke?subject=Delete My TamWar Account'
+            )
+        }
+        style={{
+            marginTop: 16,
+            alignItems: 'center',
+        }}
+        >
+        <Text
+            style={{
+            color: '#22c55e',
+            textDecorationLine: 'underline',
+            }}
+        >
+            Alternatively contact tamwar@poll.co.ke
+        </Text>
+        </Pressable>
     </ScrollView>
   );
 }
