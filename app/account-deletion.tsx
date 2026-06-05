@@ -1,4 +1,4 @@
-import { ScrollView, Alert, Text, View, Pressable, Linking } from 'react-native';
+import { ScrollView, Alert, Text, View, Pressable, Linking, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { deleteMyAccount } from '@/services/deleteAccountService';
 
@@ -10,38 +10,35 @@ export default function AccountDeletionPage() {
       `mailto:${email}?subject=Delete My TamWar Account`
     );
   };
-const handleDeleteAccount = () => {
-  Alert.alert(
-    'Delete Account',
-    'This will permanently delete your TamWar account, profile, scores and supporter data. This action cannot be undone.',
-    [
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteMyAccount();
+const handleDeleteAccount = async () => {
+  const confirmed =
+    typeof window !== 'undefined'
+      ? window.confirm(
+          'This will permanently delete your TamWar account, profile, scores and supporter data. This action cannot be undone.'
+        )
+      : true;
 
-            Alert.alert(
-              'Account Deleted',
-              'Your account has been successfully deleted.'
-            );
+  if (!confirmed) return;
 
-            router.replace('/');
-          } catch (error: any) {
-            Alert.alert(
-              'Deletion Failed',
-              error?.message || 'Could not delete account.'
-            );
-          }
-        },
-      },
-    ]
-  );
+  try {
+    await deleteMyAccount();
+
+    if (typeof window !== 'undefined') {
+      window.alert('Your account has been successfully deleted.');
+    } else {
+      Alert.alert('Account Deleted', 'Your account has been successfully deleted.');
+    }
+
+    router.replace('/');
+  } catch (error: any) {
+    const message = error?.message || 'Could not delete account.';
+
+    if (typeof window !== 'undefined') {
+      window.alert(message);
+    } else {
+      Alert.alert('Deletion Failed', message);
+    }
+  }
 };
   return (
     <ScrollView
@@ -133,8 +130,9 @@ const handleDeleteAccount = () => {
         tamwar@poll.co.ke
       </Section>
 
-        <Pressable
+        <TouchableOpacity
         onPress={handleDeleteAccount}
+        activeOpacity={0.8}
         style={{
             backgroundColor: '#dc2626',
             paddingVertical: 16,
@@ -152,7 +150,7 @@ const handleDeleteAccount = () => {
         >
             Delete My Account
         </Text>
-        </Pressable>
+        </TouchableOpacity>
         <Pressable
         onPress={() =>
             Linking.openURL(
