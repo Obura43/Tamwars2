@@ -1,6 +1,6 @@
 import { ScrollView, Alert, Text, View, Pressable, Linking, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
-import { deleteMyAccount } from '@/services/deleteAccountService';
+import { deleteMyAccount } from '@/src/services/deleteAccountService';
 
 export default function AccountDeletionPage() {
   const email = 'tamwar@poll.co.ke';

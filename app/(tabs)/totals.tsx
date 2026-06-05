@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, RefreshControl, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getSideStats, SideStats } from '@/services/totalsService';
+import { getSideStats, SideStats } from '@/src/services/totalsService';
 import { COLORS } from '@/lib/constants';
 import { BarChart3 } from 'lucide-react-native';
 

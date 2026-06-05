@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getLeaderboard, LeaderboardEntry } from '@/services/leaderboardService';
+import { getLeaderboard, LeaderboardEntry } from '@/src/services/leaderboardService';
 import { COLORS } from '@/lib/constants';
 import { Trophy } from 'lucide-react-native';
 

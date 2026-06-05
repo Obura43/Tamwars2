@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
 import { useAuth } from '@/lib/auth-context';
-import { checkCooldown, saveTapSession } from '@/services/gameService';
+import { checkCooldown, saveTapSession } from '@/src/services/gameService';
 import { COLORS, GAME_DURATION } from '@/lib/constants';
 import { X } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/lib/auth-context';
-import { hasProfile } from '@/services/profileService';
+import { hasProfile } from '@/src/services/profileService';
 import { COLORS } from '@/lib/constants';
 
 export default function WelcomeScreen() {

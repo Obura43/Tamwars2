@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Keyboa
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/lib/auth-context';
-import { createProfile } from '@/services/profileService';
+import { createProfile } from '@/src/services/profileService';
 import { COLORS, KENYAN_COUNTIES } from '@/lib/constants';
 import { ChevronDown } from 'lucide-react-native';
 

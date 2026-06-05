@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { signUpWithEmail, signOut } from '@/services/authService';
+import { signUpWithEmail, signOut } from '@/src/services/authService';
 import { COLORS } from '@/lib/constants';
 import { ArrowLeft } from 'lucide-react-native';
 

@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, RefreshControl, ScrollView } 
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/lib/auth-context';
-import { getProfile } from '@/services/profileService';
-import { getSideStats, SideStats } from '@/services/totalsService';
+import { getProfile } from '@/src/services/profileService';
+import { getSideStats, SideStats } from '@/src/services/totalsService';
 import { COLORS } from '@/lib/constants';
 import { Zap, Trophy, Play } from 'lucide-react-native';
 

@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, RefreshControl } 
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/lib/auth-context';
-import { getProfile, Profile } from '@/services/profileService';
-import { getUserStats } from '@/services/gameService';
-import { signOut } from '@/services/authService';
+import { getProfile, Profile } from '@/src/services/profileService';
+import { getUserStats } from '@/src/services/gameService';
+import { signOut } from '@/src/services/authService';
 import { COLORS } from '@/lib/constants';
 import { LogOut, User, Settings } from 'lucide-react-native';
 

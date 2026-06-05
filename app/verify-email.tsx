@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { resendVerificationEmail, refreshAndCheckVerification, signOut } from '@/services/authService';
-import { hasProfile } from '@/services/profileService';
+import { resendVerificationEmail, refreshAndCheckVerification, signOut } from '@/src/services/authService';
+import { hasProfile } from '@/src/services/profileService';
 import { COLORS } from '@/lib/constants';
 import { Mail, ArrowLeft } from 'lucide-react-native';
 

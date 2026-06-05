@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Share, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getSession, getGlobalRank, TapSession } from '@/services/gameService';
+import { getSession, getGlobalRank, TapSession } from '@/src/services/gameService';
 import { COLORS } from '@/lib/constants';
 import { Share2, Home, RotateCcw } from 'lucide-react-native';
 
