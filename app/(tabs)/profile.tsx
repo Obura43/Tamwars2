@@ -7,7 +7,7 @@ import { getProfile, Profile } from '@/services/profileService';
 import { getUserStats } from '@/services/gameService';
 import { signOut } from '@/services/authService';
 import { COLORS } from '@/lib/constants';
-import { LogOut, User } from 'lucide-react-native';
+import { LogOut, User, Settings } from 'lucide-react-native';
 
 interface UserStats {
   bestScore: number;
@@ -66,9 +66,19 @@ export default function ProfileScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.white} />}
       >
         <View style={styles.header}>
-          <User color={COLORS.white} size={24} />
-          <Text style={styles.title}>Profile</Text>
-        </View>
+          <View style={styles.headerLeft}>
+            <User color={COLORS.white} size={24} />
+            <Text style={styles.title}>Profile</Text>
+          </View>
+
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => router.push('/settings' as any)}
+          activeOpacity={0.8}
+        >
+          <Settings color={COLORS.white} size={22} />
+        </TouchableOpacity>
+      </View>
 
         <View style={styles.avatarContainer}>
           <View style={[styles.avatar, { borderColor: sideColor }]}>
@@ -131,14 +141,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginTop: '50%',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 24,
-    paddingTop: 8,
-  },
+},
+header: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: 24,
+  paddingTop: 8,
+},
+
+headerLeft: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 10,
+},
+
+settingsButton: {
+  width: 42,
+  height: 42,
+  borderRadius: 21,
+  backgroundColor: COLORS.surface,
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderWidth: 1,
+  borderColor: COLORS.border,
+},
   title: {
     fontFamily: 'Inter-Bold',
     fontSize: 24,
