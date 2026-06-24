@@ -32,7 +32,7 @@ export default function ResultScreen() {
 
   const handleShare = async () => {
     if (!session) return;
-    const message = `I scored ${session.tap_count.toLocaleString()} taps for ${session.side} on TamWar! Can you beat me?`;
+    const message = `I scored ${session.tap_count.toLocaleString()} taps for ${session.side} on TamWar! Can you beat me? https://tamwar.poll.co.ke/`;
     if (Platform.OS === 'web') {
       if (navigator.share) {
         navigator.share({ text: message });
