@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { getSession, getGlobalRank, TapSession } from '@/src/services/gameService';
 import { COLORS } from '@/lib/constants';
 import { Share2, Home, RotateCcw } from 'lucide-react-native';
+import BannerAdvertisement from '@/components/BannerAd';
 
 export default function ResultScreen() {
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
@@ -32,7 +33,8 @@ export default function ResultScreen() {
 
   const handleShare = async () => {
     if (!session) return;
-    const message = `I scored ${session.tap_count.toLocaleString()} taps for ${session.side} on TamWar! Can you beat me? https://tamwar.poll.co.ke/`;
+    const playLink = 'https://play.google.com/store/apps/details?id=com.tamwar.app';
+    const message = `I scored ${session.tap_count.toLocaleString()} taps for ${session.side} on TamWar! Can you beat me? Get TamWar: ${playLink}`;
     if (Platform.OS === 'web') {
       if (navigator.share) {
         navigator.share({ text: message });
@@ -85,6 +87,9 @@ export default function ResultScreen() {
             <Text style={styles.rankValue}>#{rank}</Text>
           </View>
         )}
+        <View style={styles.bannerContainer}>
+          <BannerAdvertisement />
+        </View>
 
         <View style={styles.actions}>
           <TouchableOpacity style={styles.shareButton} onPress={handleShare} activeOpacity={0.8}>
@@ -248,5 +253,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
     fontSize: 14,
     color: COLORS.white,
+  },
+    bannerContainer: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+    minHeight: 60,
   },
 });

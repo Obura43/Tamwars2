@@ -7,6 +7,7 @@ import { getProfile } from '@/src/services/profileService';
 import { getSideStats, SideStats } from '@/src/services/totalsService';
 import { COLORS } from '@/lib/constants';
 import { Zap, Trophy, Play } from 'lucide-react-native';
+import BannerAdvertisement from '@/components/BannerAd';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -22,7 +23,12 @@ export default function HomeScreen() {
     ]);
 
     setStats(sideStats);
-    if (profile) setUserSide(profile.preferred_side);
+
+    if (profile) {
+      setUserSide(profile.preferred_side);
+    } else {
+      setUserSide('Guest');
+    }
   }, [user]);
 
   useEffect(() => {
@@ -54,8 +60,20 @@ export default function HomeScreen() {
           <Text style={styles.logo}>TamWar</Text>
           <View style={styles.yourSideBadge}>
             <Text style={styles.yourSideLabel}>Your side:</Text>
-            <Text style={[styles.yourSideText, { color: userSide === 'WANTAM' ? COLORS.wantam : COLORS.tutam }]}>
-              {userSide || '...'}
+            <Text
+              style={[
+                styles.yourSideText,
+                {
+                  color:
+                    userSide === 'WANTAM'
+                      ? COLORS.wantam
+                      : userSide === 'TUTAM'
+                      ? COLORS.tutam
+                      : COLORS.white,
+                },
+              ]}
+            >
+              {userSide}
             </Text>
           </View>
         </View>
@@ -119,6 +137,9 @@ export default function HomeScreen() {
             <Zap color={COLORS.white} size={20} />
             <Text style={styles.actionText}>Live Totals</Text>
           </TouchableOpacity>
+        </View>
+         <View style={styles.bannerContainer}>
+          <BannerAdvertisement />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -241,4 +262,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.white,
   },
+    bannerContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 60,
+    },
 });

@@ -8,6 +8,8 @@ import { checkCooldown, saveTapSession } from '@/src/services/gameService';
 import { COLORS, GAME_DURATION } from '@/lib/constants';
 import { X } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { showInterstitial } from '@/components/InterstitialAd';
 
 const { width } = Dimensions.get('window');
 
@@ -29,8 +31,14 @@ export default function BattleScreen() {
     transform: [{ scale: scale.value }],
   }));
 
-  const startGame = async () => {
-    if (!user) return;
+    const startGame = async () => {
+      if (!user) {
+        setError('');
+        setTapCount(0);
+        setTimeLeft(GAME_DURATION);
+        setGameState('playing');
+        return;
+      }
     const canPlay = await checkCooldown(user.id);
     if (!canPlay) {
       setError('Slow down! You can only play 5 games every 10 minutes. Take a breather.');
@@ -76,20 +84,51 @@ export default function BattleScreen() {
   }, [gameState]);
 
   const saveSession = async () => {
-    if (!user) return;
+    if (!user) {
+      router.replace({
+        pathname: '/guest-finish',
+        params: {
+          score: tapCount.toString(),
+          side: side as string,
+        },
+      } as any);
+
+      return;
+  }
+
     setSaving(true);
 
-    const result = await saveTapSession(user.id, side as 'WANTAM' | 'TUTAM', tapCount);
+    const result = await saveTapSession(
+      user.id,
+      side as 'WANTAM' | 'TUTAM',
+      tapCount
+    );
 
-    setSaving(false);
+      setSaving(false);
 
-    if ('error' in result) {
-      setError(result.error);
-      return;
-    }
+      if ('error' in result) {
+        setError(result.error);
+        return;
+      }
 
-    router.replace(`/result/${result.sessionId}`);
-  };
+      // Count completed games
+      const gamesPlayed = Number(
+        (await AsyncStorage.getItem('gamesPlayed')) ?? '0'
+      ) + 1;
+
+      await AsyncStorage.setItem('gamesPlayed', gamesPlayed.toString());
+
+      const goToResults = () => {
+        router.replace(`/result/${result.sessionId}`);
+      };
+
+      // Show an interstitial every 4 games
+      if (gamesPlayed % 4 === 0) {
+        showInterstitial(goToResults);
+      } else {
+        goToResults();
+      }
+    };
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
