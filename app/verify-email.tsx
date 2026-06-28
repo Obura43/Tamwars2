@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-nativ
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { resendVerificationEmail, refreshAndCheckVerification, signOut } from '@/src/services/authService';
+import { claimPendingGuestScore } from '@/src/services/gameService';
 import { hasProfile } from '@/src/services/profileService';
 import { COLORS } from '@/lib/constants';
 import { Mail, ArrowLeft } from 'lucide-react-native';
@@ -55,6 +56,7 @@ export default function VerifyEmailScreen() {
       const profileExists = await hasProfile(result.userId);
       setChecking(false);
       if (profileExists) {
+        await claimPendingGuestScore(result.userId);
         router.replace('/(tabs)/home');
       } else {
         router.replace('/profile-setup');

@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
 import { useAuth } from '@/lib/auth-context';
-import { checkCooldown, saveTapSession } from '@/src/services/gameService';
+import { checkCooldown, saveGuestTapSession, saveTapSession } from '@/src/services/gameService';
 import { COLORS, GAME_DURATION } from '@/lib/constants';
 import { X } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
@@ -84,19 +84,14 @@ export default function BattleScreen() {
   }, [gameState]);
 
   const saveSession = async () => {
-    if (!user) {
-      router.replace({
-        pathname: '/guest-finish',
-        params: {
-          score: tapCount.toString(),
-          side: side as string,
-        },
-      } as any);
-
-      return;
-  }
-
     setSaving(true);
+
+    if (!user) {
+      const result = await saveGuestTapSession(side as 'WANTAM' | 'TUTAM', tapCount);
+      setSaving(false);
+      router.replace(`/result/${result.sessionId}`);
+      return;
+    }
 
     const result = await saveTapSession(
       user.id,

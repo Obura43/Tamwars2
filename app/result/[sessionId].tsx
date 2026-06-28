@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Share, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getSession, getGlobalRank, TapSession } from '@/src/services/gameService';
+import { getSession, getGlobalRank, markPendingScoreClaim, TapSession } from '@/src/services/gameService';
 import { COLORS } from '@/lib/constants';
 import { Share2, Home, RotateCcw } from 'lucide-react-native';
 import BannerAdvertisement from '@/components/BannerAd';
@@ -13,6 +13,7 @@ export default function ResultScreen() {
   const [session, setSession] = useState<TapSession | null>(null);
   const [rank, setRank] = useState<number | null>(null);
   const [error, setError] = useState('');
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     fetchResult();
@@ -22,7 +23,7 @@ export default function ResultScreen() {
     const data = await getSession(sessionId);
     if (data) {
       setSession(data);
-      if (data.validated) {
+      if (data.validated && data.user_id !== 'guest') {
         const r = await getGlobalRank(data.tap_count);
         setRank(r);
       }
@@ -32,18 +33,36 @@ export default function ResultScreen() {
   };
 
   const handleShare = async () => {
-    if (!session) return;
+    if (!session || sharing) return;
+
+    setSharing(true);
     const playLink = 'https://play.google.com/store/apps/details?id=com.tamwar.app';
     const message = `I scored ${session.tap_count.toLocaleString()} taps for ${session.side} on TamWar! Can you beat me? Get TamWar: ${playLink}`;
-    if (Platform.OS === 'web') {
-      if (navigator.share) {
-        navigator.share({ text: message });
+
+    try {
+      if (Platform.OS === 'web') {
+        if (navigator.share) {
+          await navigator.share({ text: message });
+        } else {
+          await navigator.clipboard?.writeText(message);
+        }
       } else {
-        navigator.clipboard?.writeText(message);
+        await Share.share({ message });
       }
-    } else {
-      Share.share({ message });
+    } catch {
+      if (Platform.OS === 'web') {
+        await navigator.clipboard?.writeText(message);
+      }
+    } finally {
+      setSharing(false);
     }
+  };
+
+  const handleClaimScore = async () => {
+    if (!session || session.user_id !== 'guest') return;
+
+    await markPendingScoreClaim(session.id);
+    router.push({ pathname: '/signup', params: { claimScore: '1' } });
   };
 
   if (!session) {
@@ -66,6 +85,7 @@ export default function ResultScreen() {
   }
 
   const sideColor = session.side === 'WANTAM' ? COLORS.wantam : COLORS.tutam;
+  const isGuestResult = session.user_id === 'guest';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -81,6 +101,12 @@ export default function ResultScreen() {
         <Text style={styles.scoreValue}>{session.tap_count.toLocaleString()}</Text>
         <Text style={styles.tapsText}>taps in 60 seconds</Text>
 
+        {isGuestResult && (
+          <View style={styles.localBadge}>
+            <Text style={styles.localBadgeText}>Saved on this device</Text>
+          </View>
+        )}
+
         {rank && session.validated && (
           <View style={styles.rankBadge}>
             <Text style={styles.rankLabel}>Global Rank</Text>
@@ -92,10 +118,21 @@ export default function ResultScreen() {
         </View>
 
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.shareButton} onPress={handleShare} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={[styles.shareButton, sharing && styles.shareButtonDisabled]}
+            onPress={handleShare}
+            disabled={sharing}
+            activeOpacity={0.8}
+          >
             <Share2 color={COLORS.white} size={20} />
-            <Text style={styles.shareText}>Share Result</Text>
+            <Text style={styles.shareText}>{sharing ? 'Sharing...' : 'Share Result'}</Text>
           </TouchableOpacity>
+
+          {isGuestResult && (
+            <TouchableOpacity style={styles.claimButton} onPress={handleClaimScore} activeOpacity={0.8}>
+              <Text style={styles.claimButtonText}>Claim Score</Text>
+            </TouchableOpacity>
+          )}
 
           <View style={styles.actionRow}>
             <TouchableOpacity
@@ -203,6 +240,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
   },
+  localBadge: {
+    backgroundColor: COLORS.surface,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  localBadgeText: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 13,
+    color: COLORS.textSecondary,
+  },
   rankLabel: {
     fontFamily: 'Inter-Regular',
     fontSize: 12,
@@ -228,10 +279,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
   },
+  shareButtonDisabled: {
+    opacity: 0.6,
+  },
   shareText: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 16,
     color: COLORS.white,
+  },
+  claimButton: {
+    backgroundColor: COLORS.gold,
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  claimButtonText: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 16,
+    color: COLORS.background,
   },
   actionRow: {
     flexDirection: 'row',

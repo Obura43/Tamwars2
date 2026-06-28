@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/lib/auth-context';
+import { claimPendingGuestScore } from '@/src/services/gameService';
 import { hasProfile } from '@/src/services/profileService';
 import { COLORS } from '@/lib/constants';
 
@@ -15,24 +16,29 @@ export default function WelcomeScreen() {
 
     console.log('[INDEX] guard: user:', user?.id, 'isEmailVerified:', isEmailVerified);
 
-    if (user) {
-      if (!isEmailVerified) {
-        console.log('[INDEX] redirecting unverified user to verify-email');
-        router.replace({ pathname: '/verify-email', params: { email: user.email ?? '' } });
-        return;
-      }
-      hasProfile(user.id).then((exists) => {
-        console.log('[INDEX] verified user, profile exists:', exists);
-        if (exists) {
-          router.replace('/(tabs)/home');
-        } else {
-          router.replace('/profile-setup');
-        }
-      });
+    if (!user) {
+      router.replace('/(tabs)/home');
+      return;
     }
+
+    if (!isEmailVerified) {
+      console.log('[INDEX] redirecting unverified user to verify-email');
+      router.replace({ pathname: '/verify-email', params: { email: user.email ?? '' } });
+      return;
+    }
+
+    hasProfile(user.id).then((exists) => {
+      console.log('[INDEX] verified user, profile exists:', exists);
+      if (exists) {
+        claimPendingGuestScore(user.id);
+        router.replace('/(tabs)/home');
+      } else {
+        router.replace('/profile-setup');
+      }
+    });
   }, [user, loading, isEmailVerified]);
 
-  if (loading || user) {
+  if (loading || user === null) {
     return (
       <View style={styles.container}>
         <Text style={styles.loadingText}>Loading...</Text>

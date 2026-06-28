@@ -35,8 +35,13 @@ export default function ProfileScreen() {
   }, [user]);
 
   useEffect(() => {
+    if (!user) {
+      router.replace('/signup');
+      return;
+    }
+
     fetchProfile();
-  }, [fetchProfile]);
+  }, [fetchProfile, router, user]);
 
   const onRefresh = async () => {
     setRefreshing(true);

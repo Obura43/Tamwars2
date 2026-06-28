@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { signUpWithEmail, signOut } from '@/src/services/authService';
 import { COLORS } from '@/lib/constants';
@@ -8,6 +8,8 @@ import { ArrowLeft } from 'lucide-react-native';
 
 export default function SignupScreen() {
   const router = useRouter();
+  const { claimScore } = useLocalSearchParams<{ claimScore?: string }>();
+  const isClaimingScore = claimScore === '1';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -57,7 +59,9 @@ export default function SignupScreen() {
 
         <View style={styles.content}>
           <Text style={styles.title}>Join TamWar</Text>
-          <Text style={styles.subtitle}>Pick your side and start tapping</Text>
+          <Text style={styles.subtitle}>
+            {isClaimingScore ? 'Create an account to add your score to the leaderboard' : 'Pick your side and start tapping'}
+          </Text>
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -97,6 +101,16 @@ export default function SignupScreen() {
             activeOpacity={0.8}
           >
             <Text style={styles.buttonText}>{loading ? 'Creating account...' : 'Create Account'}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.signInLink}
+            onPress={() => router.push('/login')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.signInText}>
+              Already have an account? <Text style={styles.signInTextStrong}>Sign in</Text>
+            </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -167,5 +181,18 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
     fontSize: 18,
     color: COLORS.background,
+  },
+  signInLink: {
+    marginTop: 18,
+    alignItems: 'center',
+  },
+  signInText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
+  signInTextStrong: {
+    fontFamily: 'Inter-Bold',
+    color: COLORS.white,
   },
 });

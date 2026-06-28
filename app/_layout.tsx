@@ -5,7 +5,7 @@ import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider } from '@/lib/auth-context';
 import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold, Inter_900Black } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
-import mobileAds from 'react-native-google-mobile-ads';
+//import mobileAds from 'react-native-google-mobile-ads';
 import { loadInterstitial } from '@/components/InterstitialAd';
 
 SplashScreen.preventAutoHideAsync();
@@ -24,8 +24,8 @@ export default function RootLayout() {
     async function initializeApp() {
       if (fontsLoaded || fontError) {
         try {
-          await mobileAds().initialize();
-          loadInterstitial();
+          // await mobileAds().initialize();
+          // loadInterstitial();
           console.log('AdMob initialized');
         } catch (err) {
           console.error('AdMob initialization failed:', err);

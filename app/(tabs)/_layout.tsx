@@ -11,12 +11,7 @@ export default function TabLayout() {
   useEffect(() => {
     if (loading) return;
     console.log('[TABS] guard: user:', user?.id, 'isEmailVerified:', isEmailVerified);
-    if (!user) {
-      console.log('[TABS] no user, redirecting to welcome');
-      router.replace('/');
-      return;
-    }
-    if (!isEmailVerified) {
+    if (user && !isEmailVerified) {
       console.log('[TABS] unverified user, redirecting to verify-email');
       router.replace({ pathname: '/verify-email', params: { email: user.email ?? '' } });
     }

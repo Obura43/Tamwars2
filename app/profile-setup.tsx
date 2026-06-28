@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Keyboa
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/lib/auth-context';
+import { claimPendingGuestScore } from '@/src/services/gameService';
 import { createProfile } from '@/src/services/profileService';
 import { COLORS, KENYAN_COUNTIES } from '@/lib/constants';
 import { ChevronDown } from 'lucide-react-native';
@@ -66,6 +67,7 @@ export default function ProfileSetupScreen() {
       return;
     }
 
+    await claimPendingGuestScore(user.id);
     router.replace('/(tabs)/home');
   };
 

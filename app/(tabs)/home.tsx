@@ -7,7 +7,7 @@ import { getProfile } from '@/src/services/profileService';
 import { getSideStats, SideStats } from '@/src/services/totalsService';
 import { COLORS } from '@/lib/constants';
 import { Zap, Trophy, Play } from 'lucide-react-native';
-import BannerAdvertisement from '@/components/BannerAd';
+//import BannerAdvertisement from '@/components/BannerAd';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -58,23 +58,34 @@ export default function HomeScreen() {
       >
         <View style={styles.header}>
           <Text style={styles.logo}>TamWar</Text>
-          <View style={styles.yourSideBadge}>
-            <Text style={styles.yourSideLabel}>Your side:</Text>
-            <Text
-              style={[
-                styles.yourSideText,
-                {
-                  color:
-                    userSide === 'WANTAM'
-                      ? COLORS.wantam
-                      : userSide === 'TUTAM'
-                      ? COLORS.tutam
-                      : COLORS.white,
-                },
-              ]}
-            >
-              {userSide}
-            </Text>
+          <View style={styles.headerActions}>
+            {!user && (
+              <TouchableOpacity
+                style={styles.signupLink}
+                onPress={() => router.push('/signup')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.signupLinkText}>Sign up</Text>
+              </TouchableOpacity>
+            )}
+            <View style={styles.yourSideBadge}>
+              <Text style={styles.yourSideLabel}>Your side:</Text>
+              <Text
+                style={[
+                  styles.yourSideText,
+                  {
+                    color:
+                      userSide === 'WANTAM'
+                        ? COLORS.wantam
+                        : userSide === 'TUTAM'
+                        ? COLORS.tutam
+                        : COLORS.white,
+                  },
+                ]}
+              >
+                {userSide}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -139,7 +150,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
          <View style={styles.bannerContainer}>
-          <BannerAdvertisement />
+          {/* <BannerAdvertisement /> */}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -164,6 +175,19 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Black',
     fontSize: 28,
     color: COLORS.white,
+  },
+  headerActions: {
+    alignItems: 'flex-end',
+    gap: 8,
+  },
+  signupLink: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  signupLinkText: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 13,
+    color: COLORS.gold,
   },
   yourSideBadge: {
     flexDirection: 'row',

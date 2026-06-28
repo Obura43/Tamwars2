@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingVi
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { signInWithEmail, resendVerificationEmail } from '@/src/services/authService';
+import { claimPendingGuestScore } from '@/src/services/gameService';
 import { hasProfile } from '@/src/services/profileService';
 import { supabase } from '@/lib/supabase';
 import { COLORS } from '@/lib/constants';
@@ -57,6 +58,7 @@ export default function LoginScreen() {
       setLoading(false);
       console.log('[LOGIN] verified, profile exists:', profileExists);
       if (profileExists) {
+        await claimPendingGuestScore(user.id);
         router.replace('/(tabs)/home');
       } else {
         router.replace('/profile-setup');
