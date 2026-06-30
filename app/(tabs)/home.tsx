@@ -82,7 +82,7 @@ export default function HomeScreen() {
               >
                 <Coins color={COLORS.gold} size={15} />
                 <Text style={styles.balancePillText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
-                  {formatNumber(twsBalance)} TWS
+                  {formatNumber(twsBalance)} Coins
                 </Text>
               </TouchableOpacity>
             )}
@@ -200,7 +200,7 @@ export default function HomeScreen() {
             </View>
             <View style={styles.storeBannerTextWrap}>
               <Text style={styles.storeBannerTitle}>Buy Affordable Housing Units</Text>
-              <Text style={styles.storeBannerSubtitle}>Spend TWS on virtual homes</Text>
+              <Text style={styles.storeBannerSubtitle}>Spend Coins on virtual homes</Text>
             </View>
           </TouchableOpacity>
 
@@ -209,7 +209,7 @@ export default function HomeScreen() {
             onPress={() => router.push({ pathname: '/marketplace', params: { tab: 'cars' } } as any)}
             activeOpacity={0.86}
           >
-            <View style={styles.storeBannerIcon}>
+            <View style={[styles.storeBannerIcon, styles.carBannerIcon]}>
               <Car color={COLORS.white} size={24} />
             </View>
             <View style={styles.storeBannerTextWrap}>
@@ -405,7 +405,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.tutam,
   },
   carBanner: {
-    backgroundColor: COLORS.surfaceLight,
+    backgroundColor: COLORS.wantam,
+    borderColor: 'rgba(255,255,255,0.18)',
   },
   storeBannerIcon: {
     width: 48,
@@ -414,6 +415,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.14)',
+  },
+  carBannerIcon: {
+    backgroundColor: 'rgba(0,0,0,0.22)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
   },
   storeBannerTextWrap: {
     flex: 1,

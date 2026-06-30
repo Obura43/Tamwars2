@@ -11,6 +11,14 @@ import { ArrowLeft } from 'lucide-react-native';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const getPasswordResetRedirectUrl = () => {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    return `${window.location.origin}/reset-password`;
+  }
+
+  return Linking.createURL('/reset-password');
+};
+
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -73,7 +81,7 @@ export default function LoginScreen() {
     setMessage('');
     setResetLoading(true);
 
-    const redirectTo = Linking.createURL('/reset-password');
+    const redirectTo = getPasswordResetRedirectUrl();
     const result = await sendPasswordResetEmail(normalizedEmail, redirectTo);
     setResetLoading(false);
 

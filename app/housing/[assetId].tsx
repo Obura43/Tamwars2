@@ -114,7 +114,7 @@ export default function HousingDetailScreen() {
           <View style={styles.summaryCard}>
             <Coins color={COLORS.gold} size={20} />
             <Text style={styles.summaryLabel}>Value</Text>
-            <Text style={styles.summaryValue}>{asset.price_tws.toLocaleString()} TWS</Text>
+            <Text style={styles.summaryValue}>{asset.price_tws.toLocaleString()} Coins</Text>
           </View>
         </View>
 
@@ -138,7 +138,7 @@ export default function HousingDetailScreen() {
           <View style={styles.noticeCopy}>
             <Text style={styles.noticeTitle}>TamWar virtual property</Text>
             <Text style={styles.noticeText}>
-              This is an in-app collectible bought with TWS. It is not real-world property or a legal claim to housing.
+              This is an in-app collectible bought with Coins. It is not real-world property or a legal claim to housing.
             </Text>
           </View>
         </View>

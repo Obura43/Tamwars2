@@ -1,11 +1,22 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Share, Platform } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Share, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getSession, getGlobalRank, markPendingScoreClaim, TapSession } from '@/src/services/gameService';
 import { COLORS } from '@/lib/constants';
-import { Share2, Home, RotateCcw } from 'lucide-react-native';
+import { Share2, Home, RotateCcw, Coins } from 'lucide-react-native';
 import BannerAdvertisement from '@/components/BannerAd';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSequence,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
+
+const COINS_PER_TAP = 3;
 
 export default function ResultScreen() {
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
@@ -14,10 +25,100 @@ export default function ResultScreen() {
   const [rank, setRank] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [sharing, setSharing] = useState(false);
+  const [displayedScore, setDisplayedScore] = useState(0);
+  const [displayedCoins, setDisplayedCoins] = useState(0);
+  const entrance = useSharedValue(0);
+  const scorePulse = useSharedValue(1);
+  const rankPopup = useSharedValue(0);
+  const coinsPulse = useSharedValue(1);
 
   useEffect(() => {
     fetchResult();
   }, [sessionId]);
+
+  useEffect(() => {
+    if (!session) return;
+
+    entrance.value = 0;
+    scorePulse.value = 1;
+    rankPopup.value = 0;
+    coinsPulse.value = 1;
+    entrance.value = withTiming(1, {
+      duration: 620,
+      easing: Easing.out(Easing.cubic),
+    });
+    scorePulse.value = withDelay(240, withSequence(withSpring(1.08), withSpring(1)));
+    rankPopup.value = withDelay(
+      1650,
+      withSpring(1, {
+        damping: 13,
+        stiffness: 130,
+      })
+    );
+    coinsPulse.value = withDelay(2050, withSequence(withSpring(1.08), withSpring(1)));
+
+    const totalCoins = session.validated ? session.tap_count * COINS_PER_TAP : 0;
+    const scoreDuration = 1350;
+    const coinDuration = 2200;
+    const coinDelay = 1950;
+    const start = Date.now();
+    setDisplayedScore(0);
+    setDisplayedCoins(0);
+
+    const scoreInterval = setInterval(() => {
+      const progress = Math.min((Date.now() - start) / scoreDuration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplayedScore(Math.round(session.tap_count * eased));
+
+      if (progress >= 1) {
+        clearInterval(scoreInterval);
+      }
+    }, 16);
+
+    let coinInterval: ReturnType<typeof setInterval> | null = null;
+    const coinTimeout = setTimeout(() => {
+      const coinStart = Date.now();
+      coinInterval = setInterval(() => {
+        const progress = Math.min((Date.now() - coinStart) / coinDuration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        setDisplayedCoins(Math.round(totalCoins * eased));
+
+        if (progress >= 1) {
+          if (coinInterval) clearInterval(coinInterval);
+        }
+      }, 16);
+    }, coinDelay);
+
+    return () => {
+      clearInterval(scoreInterval);
+      clearTimeout(coinTimeout);
+      if (coinInterval) clearInterval(coinInterval);
+    };
+  }, [coinsPulse, entrance, rankPopup, scorePulse, session]);
+
+  const pageAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: entrance.value,
+    transform: [
+      { translateY: 24 * (1 - entrance.value) },
+      { scale: 0.98 + entrance.value * 0.02 },
+    ],
+  }));
+
+  const scoreAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scorePulse.value }],
+  }));
+
+  const rankAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: rankPopup.value,
+    transform: [
+      { translateY: 18 * (1 - rankPopup.value) },
+      { scale: 0.86 + rankPopup.value * 0.14 },
+    ],
+  }));
+
+  const coinsAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: coinsPulse.value }],
+  }));
 
   const fetchResult = async () => {
     const data = await getSession(sessionId);
@@ -86,10 +187,12 @@ export default function ResultScreen() {
 
   const sideColor = session.side === 'WANTAM' ? COLORS.wantam : COLORS.tutam;
   const isGuestResult = session.user_id === 'guest';
+  const coinsEarned = session.validated ? session.tap_count * COINS_PER_TAP : 0;
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <Animated.View style={[styles.content, pageAnimatedStyle]}>
         {session.suspicious && (
           <View style={styles.warningBanner}>
             <Text style={styles.warningText}>Score flagged as suspicious and won't appear on leaderboard</Text>
@@ -97,9 +200,11 @@ export default function ResultScreen() {
         )}
 
         <Text style={[styles.sideText, { color: sideColor }]}>{session.side}</Text>
-        <Text style={styles.scoreLabel}>Your Score</Text>
-        <Text style={styles.scoreValue}>{session.tap_count.toLocaleString()}</Text>
-        <Text style={styles.tapsText}>taps in 60 seconds</Text>
+        <Animated.View style={[styles.scoreCard, scoreAnimatedStyle]}>
+          <Text style={styles.scoreLabel}>Your Score</Text>
+          <Text style={styles.scoreValue}>{displayedScore.toLocaleString()}</Text>
+          <Text style={styles.tapsText}>taps in 60 seconds</Text>
+        </Animated.View>
 
         {isGuestResult && (
           <View style={styles.localBadge}>
@@ -108,11 +213,29 @@ export default function ResultScreen() {
         )}
 
         {rank && session.validated && (
-          <View style={styles.rankBadge}>
+          <Animated.View style={[styles.rankBadge, rankAnimatedStyle]}>
             <Text style={styles.rankLabel}>Global Rank</Text>
             <Text style={styles.rankValue}>#{rank}</Text>
-          </View>
+          </Animated.View>
         )}
+
+        <Animated.View style={[styles.coinsCard, { borderColor: sideColor }, coinsAnimatedStyle]}>
+          <View style={styles.coinsIcon}>
+            <Coins color={COLORS.gold} size={26} />
+          </View>
+          <Text style={styles.coinsLabel}>Coins Earned</Text>
+          <Text style={styles.coinsValue}>{displayedCoins.toLocaleString()}</Text>
+          <Text style={styles.coinsFormula}>
+            {session.validated ? `${session.tap_count.toLocaleString()} taps x ${COINS_PER_TAP} Coins` : 'Invalid sessions earn 0 Coins'}
+          </Text>
+        </Animated.View>
+
+        {displayedCoins === coinsEarned && session.validated ? (
+          <Text style={styles.coinsCompleteText}>
+            {isGuestResult ? 'Sign up to claim these Coins' : 'Added to your spendable balance'}
+          </Text>
+        ) : null}
+
         <View style={styles.bannerContainer}>
           <BannerAdvertisement />
         </View>
@@ -153,7 +276,8 @@ export default function ResultScreen() {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </Animated.View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -164,10 +288,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   content: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     padding: 32,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   loadingText: {
     color: COLORS.textSecondary,
@@ -213,6 +339,17 @@ const styles = StyleSheet.create({
     fontSize: 36,
     marginBottom: 8,
   },
+  scoreCard: {
+    width: '100%',
+    alignItems: 'center',
+    borderRadius: 18,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+    marginBottom: 18,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
   scoreLabel: {
     fontFamily: 'Inter-Regular',
     fontSize: 16,
@@ -228,7 +365,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     fontSize: 16,
     color: COLORS.textSecondary,
-    marginBottom: 24,
   },
   rankBadge: {
     backgroundColor: COLORS.surface,
@@ -236,7 +372,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
   },
@@ -263,6 +399,48 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
     fontSize: 24,
     color: COLORS.white,
+  },
+  coinsCard: {
+    width: '100%',
+    alignItems: 'center',
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    marginBottom: 8,
+  },
+  coinsIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.surfaceLight,
+    marginBottom: 8,
+  },
+  coinsLabel: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 16,
+    color: COLORS.textSecondary,
+    marginBottom: 4,
+  },
+  coinsValue: {
+    fontFamily: 'Inter-Black',
+    fontSize: 42,
+    color: COLORS.gold,
+  },
+  coinsFormula: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+  },
+  coinsCompleteText: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 12,
+    color: COLORS.success,
+    marginBottom: 18,
   },
   actions: {
     width: '100%',

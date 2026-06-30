@@ -2,7 +2,14 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { useAuth } from '@/lib/auth-context';
 import { checkCooldown, saveGuestTapSession, saveTapSession } from '@/src/services/gameService';
 import { COLORS, GAME_DURATION } from '@/lib/constants';
@@ -11,6 +18,56 @@ import * as Haptics from 'expo-haptics';
 import { showInterstitial } from '@/components/InterstitialAd';
 
 const { width } = Dimensions.get('window');
+const MAX_TAP_EFFECTS = 8;
+
+interface TapBurst {
+  id: number;
+  angle: number;
+  distance: number;
+}
+
+function TapBurstEffect({ burst, sideColor }: { burst: TapBurst; sideColor: string }) {
+  const progress = useSharedValue(0);
+  const translateX = Math.cos(burst.angle) * burst.distance;
+  const translateY = Math.sin(burst.angle) * burst.distance;
+
+  useEffect(() => {
+    progress.value = withTiming(1, {
+      duration: 520,
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [progress]);
+
+  const ringStyle = useAnimatedStyle(() => ({
+    opacity: 0.55 * (1 - progress.value),
+    transform: [{ scale: 0.82 + progress.value * 0.42 }],
+  }));
+
+  const sparkStyle = useAnimatedStyle(() => ({
+    opacity: 1 - progress.value,
+    transform: [
+      { translateX: translateX * progress.value },
+      { translateY: translateY * progress.value },
+      { scale: 1 - progress.value * 0.35 },
+    ],
+  }));
+
+  const plusStyle = useAnimatedStyle(() => ({
+    opacity: 1 - progress.value,
+    transform: [
+      { translateY: -34 * progress.value },
+      { scale: 0.9 + progress.value * 0.18 },
+    ],
+  }));
+
+  return (
+    <View pointerEvents="none" style={styles.burstLayer}>
+      <Animated.View style={[styles.tapRipple, { borderColor: sideColor }, ringStyle]} />
+      <Animated.View style={[styles.tapSpark, { backgroundColor: sideColor }, sparkStyle]} />
+      <Animated.Text style={[styles.plusOneText, plusStyle]}>+1</Animated.Text>
+    </View>
+  );
+}
 
 export default function BattleScreen() {
   const { side } = useLocalSearchParams<{ side: string }>();
@@ -21,7 +78,9 @@ export default function BattleScreen() {
   const [gameState, setGameState] = useState<'ready' | 'playing' | 'finished'>('ready');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [tapBursts, setTapBursts] = useState<TapBurst[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const burstIdRef = useRef(0);
   const scale = useSharedValue(1);
 
   const sideColor = side === 'WANTAM' ? COLORS.wantam : COLORS.tutam;
@@ -77,6 +136,16 @@ export default function BattleScreen() {
     if (gameState !== 'playing') return;
     setTapCount((prev) => prev + 1);
     scale.value = withSequence(withSpring(0.92, { duration: 50 }), withSpring(1, { duration: 50 }));
+    const id = burstIdRef.current + 1;
+    burstIdRef.current = id;
+    const angle = (id * 2.399963229728653) % (Math.PI * 2);
+    const distance = 32 + (id % 4) * 8;
+
+    setTapBursts((bursts) => [...bursts.slice(-(MAX_TAP_EFFECTS - 1)), { id, angle, distance }]);
+    setTimeout(() => {
+      setTapBursts((bursts) => bursts.filter((burst) => burst.id !== id));
+    }, 560);
+
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
@@ -151,6 +220,10 @@ export default function BattleScreen() {
           <Text style={styles.tapCountText}>{tapCount.toLocaleString()}</Text>
           <Text style={styles.tapsLabel}>taps</Text>
           <Animated.View style={[styles.tapButtonWrapper, animatedStyle]}>
+            <View pointerEvents="none" style={[styles.tapGlow, { backgroundColor: sideColor }]} />
+            {tapBursts.map((burst) => (
+              <TapBurstEffect key={burst.id} burst={burst} sideColor={sideColor} />
+            ))}
             <TouchableOpacity
               style={[styles.tapButton, { backgroundColor: sideColor }]}
               onPress={handleTap}
@@ -262,12 +335,62 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     maxWidth: 280,
     maxHeight: 280,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tapButton: {
-    flex: 1,
+    width: '100%',
+    height: '100%',
     borderRadius: 999,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 3,
+    borderColor: 'rgba(255,255,255,0.22)',
+    shadowColor: '#000',
+    shadowOpacity: 0.45,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 10,
+  },
+  tapGlow: {
+    position: 'absolute',
+    width: '112%',
+    height: '112%',
+    borderRadius: 999,
+    opacity: 0.18,
+  },
+  burstLayer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  tapRipple: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    borderRadius: 999,
+    borderWidth: 3,
+  },
+  tapSpark: {
+    position: 'absolute',
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.78)',
+  },
+  plusOneText: {
+    position: 'absolute',
+    fontFamily: 'Inter-Black',
+    fontSize: 22,
+    color: COLORS.white,
+    textShadowColor: 'rgba(0,0,0,0.35)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    zIndex: 3,
   },
   tapButtonText: {
     fontFamily: 'Inter-Black',

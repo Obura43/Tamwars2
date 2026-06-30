@@ -6,7 +6,15 @@ import { Building2, Car, Check, ChevronLeft, Coins, Lock } from 'lucide-react-na
 import { useAuth } from '@/lib/auth-context';
 import { COLORS } from '@/lib/constants';
 import { CAR_ITEMS, HOUSING_UNITS } from '@/src/data/marketplaceCatalog';
-import { getOwnedVirtualAssets, getTwsBalance, OwnedVirtualAsset, purchaseVirtualAsset } from '@/src/services/walletService';
+import {
+  claimRewardedAdBonus,
+  getOwnedVirtualAssets,
+  getTwsBalance,
+  OwnedVirtualAsset,
+  purchaseVirtualAsset,
+} from '@/src/services/walletService';
+import BannerAdvertisement from '@/components/BannerAd';
+import { showRewardedAd } from '@/components/RewardedAd';
 
 type MarketplaceTab = 'housing' | 'cars';
 type HousingCityFilter = 'All' | 'Kisumu' | 'Nairobi' | 'Mombasa' | 'Nakuru';
@@ -17,6 +25,7 @@ const HOUSING_CITY_FILTERS: HousingCityFilter[] = ['All', 'Nairobi', 'Kisumu', '
 const HOUSING_TYPE_FILTERS: HousingTypeFilter[] = ['All', 'Single Room', 'One Bedroom', 'Two Bedroom'];
 const OWNERSHIP_FILTERS: OwnershipFilter[] = ['All', 'Affordable', 'Owned'];
 const CAR_CLASS_FILTERS = ['All', ...Array.from(new Set(CAR_ITEMS.map((car) => car.className)))];
+const REWARDED_AD_COINS = 100000;
 
 export default function MarketplaceScreen() {
   const router = useRouter();
@@ -31,6 +40,7 @@ export default function MarketplaceScreen() {
   const [ownershipFilter, setOwnershipFilter] = useState<OwnershipFilter>('All');
   const [carClassFilter, setCarClassFilter] = useState('All');
   const [buyingId, setBuyingId] = useState<string | null>(null);
+  const [rewardLoading, setRewardLoading] = useState(false);
 
   const loadWallet = useCallback(async () => {
     if (!user) {
@@ -92,6 +102,12 @@ export default function MarketplaceScreen() {
   const ownedHousingCount = ownedAssets.filter((asset) => asset.asset_type === 'housing').length;
   const ownedCarCount = ownedAssets.filter((asset) => asset.asset_type === 'car').length;
 
+  const renderMarketplaceAd = (key: string) => (
+    <View key={key} style={styles.adContainer}>
+      <BannerAdvertisement />
+    </View>
+  );
+
   const showMessage = (title: string, message: string) => {
     if (Platform.OS === 'web') {
       window.alert(`${title}\n\n${message}`);
@@ -99,6 +115,51 @@ export default function MarketplaceScreen() {
     }
 
     Alert.alert(title, message);
+  };
+
+  const makeRewardId = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  const handleRewardedAdBonus = async () => {
+    if (!user || rewardLoading) return;
+
+    setRewardLoading(true);
+    const earnedReward = await showRewardedAd();
+
+    if (!earnedReward) {
+      setRewardLoading(false);
+      showMessage('Ad not completed', 'Watch the full rewarded ad to earn Coins.');
+      return;
+    }
+
+    const result = await claimRewardedAdBonus(makeRewardId());
+    setRewardLoading(false);
+
+    if (!result.success) {
+      showMessage('Reward failed', result.error);
+      return;
+    }
+
+    await loadWallet();
+    showMessage('Coins added', `You earned ${result.amount.toLocaleString()} Coins.`);
+  };
+
+  const offerRewardedAdBonus = (assetName: string, price: number) => {
+    const message = `You need ${price.toLocaleString()} Coins to buy ${assetName}. Watch a rewarded ad to earn ${REWARDED_AD_COINS.toLocaleString()} Coins?`;
+
+    if (Platform.OS === 'web') {
+      if (window.confirm(message)) {
+        handleRewardedAdBonus();
+      }
+      return;
+    }
+
+    Alert.alert('Not enough Coins', message, [
+      { text: 'Not now', style: 'cancel' },
+      {
+        text: rewardLoading ? 'Loading...' : 'Watch Ad',
+        onPress: handleRewardedAdBonus,
+      },
+    ]);
   };
 
   const handleBuy = async (asset: {
@@ -115,7 +176,7 @@ export default function MarketplaceScreen() {
     if (ownedIds.has(asset.id)) return;
 
     if (balance < asset.priceTws) {
-      showMessage('Not enough TWS', `You need ${asset.priceTws.toLocaleString()} TWS to buy ${asset.name}.`);
+      offerRewardedAdBonus(asset.name, asset.priceTws);
       return;
     }
 
@@ -147,7 +208,7 @@ export default function MarketplaceScreen() {
           </TouchableOpacity>
           <View style={styles.headerTitleWrap}>
             <Text style={styles.title}>TW Store</Text>
-            <Text style={styles.subtitle}>Spend your earned TWS on virtual assets</Text>
+            <Text style={styles.subtitle}>Spend your earned Coins on virtual assets</Text>
           </View>
         </View>
 
@@ -155,7 +216,7 @@ export default function MarketplaceScreen() {
           <Coins color={COLORS.gold} size={28} />
           <View style={styles.balanceTextWrap}>
             <Text style={styles.balanceLabel}>Spendable Balance</Text>
-            <Text style={styles.balanceValue}>{balance.toLocaleString()} TWS</Text>
+            <Text style={styles.balanceValue}>{balance.toLocaleString()} Coins</Text>
           </View>
         </View>
 
@@ -195,7 +256,7 @@ export default function MarketplaceScreen() {
 
         {activeTab === 'housing' ? (
           <View style={styles.catalogList}>
-            <Text style={styles.cityNote}>These are virtual TamWar housing collectibles bought with TWS, not real property.</Text>
+            <Text style={styles.cityNote}>These are virtual TamWar housing collectibles bought with Coins, not real property.</Text>
             <View style={styles.filterPanel}>
               <Text style={styles.filterLabel}>Show</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
@@ -248,13 +309,15 @@ export default function MarketplaceScreen() {
             {visibleHousing.length === 0 && (
               <Text style={styles.emptyCatalogText}>No units match these filters.</Text>
             )}
-            {visibleHousing.map((unit) => {
+            {visibleHousing.map((unit, index) => {
               const owned = ownedIds.has(unit.id);
               const ownedAsset = ownedAssets.find((asset) => asset.asset_id === unit.id);
               const canAfford = balance >= unit.priceTws;
 
               return (
-                <View key={unit.id} style={styles.assetCard}>
+                <View key={unit.id}>
+                  {index === 1 && renderMarketplaceAd('housing-ad-top')}
+                  <View style={styles.assetCard}>
                   <View style={styles.assetTopRow}>
                     <View style={styles.assetIcon}>
                       <Building2 color={COLORS.gold} size={24} />
@@ -263,7 +326,7 @@ export default function MarketplaceScreen() {
                       <Text style={styles.assetName}>{unit.type}</Text>
                       <Text style={styles.assetMeta}>{unit.project}</Text>
                     </View>
-                    <Text style={styles.assetPrice}>{unit.priceTws.toLocaleString()} TWS</Text>
+                    <Text style={styles.assetPrice}>{unit.priceTws.toLocaleString()} Coins</Text>
                   </View>
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>City</Text>
@@ -297,12 +360,16 @@ export default function MarketplaceScreen() {
                   >
                     {owned ? <Check color={COLORS.background} size={18} /> : !canAfford ? <Lock color={COLORS.white} size={18} /> : null}
                     <Text style={[styles.buyButtonText, owned && styles.ownedButtonText]}>
-                      {owned ? 'View Unit' : buyingId === unit.id ? 'Buying...' : canAfford ? 'Buy Unit' : 'Earn More TWS'}
+                      {owned ? 'View Unit' : buyingId === unit.id ? 'Buying...' : canAfford ? 'Buy Unit' : 'Earn More Coins'}
                     </Text>
                   </TouchableOpacity>
                 </View>
+                  {index === 4 && renderMarketplaceAd('housing-ad-bottom')}
+                </View>
               );
             })}
+            {visibleHousing.length > 0 && visibleHousing.length <= 1 && renderMarketplaceAd('housing-ad-top-short')}
+            {visibleHousing.length > 0 && visibleHousing.length <= 4 && renderMarketplaceAd('housing-ad-bottom-short')}
           </View>
         ) : (
           <View style={styles.catalogList}>
@@ -343,13 +410,15 @@ export default function MarketplaceScreen() {
             {visibleCars.length === 0 && (
               <Text style={styles.emptyCatalogText}>No cars match these filters.</Text>
             )}
-            {visibleCars.map((car) => {
+            {visibleCars.map((car, index) => {
               const owned = ownedIds.has(car.id);
               const ownedAsset = ownedAssets.find((asset) => asset.asset_id === car.id);
               const canAfford = balance >= car.priceTws;
 
               return (
-                <View key={car.id} style={styles.assetCard}>
+                <View key={car.id}>
+                  {index === 1 && renderMarketplaceAd('cars-ad-top')}
+                  <View style={styles.assetCard}>
                   <View style={styles.assetTopRow}>
                     <View style={styles.assetIcon}>
                       <Car color={COLORS.gold} size={24} />
@@ -358,7 +427,7 @@ export default function MarketplaceScreen() {
                       <Text style={styles.assetName}>{car.name}</Text>
                       <Text style={styles.assetMeta}>{car.className} - {car.color}</Text>
                     </View>
-                    <Text style={styles.assetPrice}>{car.priceTws.toLocaleString()} TWS</Text>
+                    <Text style={styles.assetPrice}>{car.priceTws.toLocaleString()} Coins</Text>
                   </View>
                   <View style={styles.carStats}>
                     <View style={styles.carStat}>
@@ -394,12 +463,16 @@ export default function MarketplaceScreen() {
                   >
                     {owned ? <Check color={COLORS.background} size={18} /> : !canAfford ? <Lock color={COLORS.white} size={18} /> : null}
                     <Text style={[styles.buyButtonText, owned && styles.ownedButtonText]}>
-                      {owned ? 'Garage' : buyingId === car.id ? 'Buying...' : canAfford ? 'Buy Car' : 'Earn More TWS'}
+                      {owned ? 'Garage' : buyingId === car.id ? 'Buying...' : canAfford ? 'Buy Car' : 'Earn More Coins'}
                     </Text>
                   </TouchableOpacity>
                 </View>
+                  {index === 2 && renderMarketplaceAd('cars-ad-bottom')}
+                </View>
               );
             })}
+            {visibleCars.length > 0 && visibleCars.length <= 1 && renderMarketplaceAd('cars-ad-top-short')}
+            {visibleCars.length > 0 && visibleCars.length <= 2 && renderMarketplaceAd('cars-ad-bottom-short')}
           </View>
         )}
       </ScrollView>
@@ -529,6 +602,12 @@ const styles = StyleSheet.create({
   },
   catalogList: {
     gap: 14,
+  },
+  adContainer: {
+    minHeight: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
   },
   cityNote: {
     fontFamily: 'Inter-Regular',

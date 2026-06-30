@@ -129,7 +129,7 @@ export default function CarDetailScreen() {
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Bought For</Text>
-            <Text style={styles.detailValue}>{asset.price_tws.toLocaleString()} TWS</Text>
+            <Text style={styles.detailValue}>{asset.price_tws.toLocaleString()} Coins</Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Purchased</Text>
@@ -161,7 +161,7 @@ export default function CarDetailScreen() {
           <View style={styles.noticeCopy}>
             <Text style={styles.noticeTitle}>TamWar virtual car</Text>
             <Text style={styles.noticeText}>
-              This is an in-app toy vehicle bought with TWS. It unlocks driving play inside TamWar only.
+              This is an in-app toy vehicle bought with Coins. It unlocks driving play inside TamWar only.
             </Text>
           </View>
         </View>

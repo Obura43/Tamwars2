@@ -56,6 +56,39 @@ export async function sendPasswordResetEmail(email: string, redirectTo?: string)
   return {};
 }
 
+function getUrlParam(url: string, key: string) {
+  const query = url.split('?')[1]?.split('#')[0] ?? '';
+  const hash = url.split('#')[1] ?? '';
+  const queryParams = new URLSearchParams(query);
+  const hashParams = new URLSearchParams(hash);
+
+  return queryParams.get(key) ?? hashParams.get(key);
+}
+
+export async function preparePasswordResetSession(url: string): Promise<{ ready: boolean; error?: string }> {
+  const code = getUrlParam(url, 'code');
+  const accessToken = getUrlParam(url, 'access_token');
+  const refreshToken = getUrlParam(url, 'refresh_token');
+
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) return { ready: false, error: error.message };
+    return { ready: true };
+  }
+
+  if (accessToken && refreshToken) {
+    const { error } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
+    if (error) return { ready: false, error: error.message };
+    return { ready: true };
+  }
+
+  const { data } = await supabase.auth.getSession();
+  return { ready: !!data.session };
+}
+
 export async function updatePassword(password: string): Promise<{ error?: string }> {
   const { error } = await supabase.auth.updateUser({ password });
   if (error) return { error: error.message };

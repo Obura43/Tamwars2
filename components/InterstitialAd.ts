@@ -1,13 +1,10 @@
 import {
   InterstitialAd,
   AdEventType,
-  TestIds,
 } from 'react-native-google-mobile-ads';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const adUnitId = __DEV__
-  ? TestIds.INTERSTITIAL
-  : 'ca-app-pub-6621272459770552/7358278083';
+const adUnitId = 'ca-app-pub-6621272459770552/7358278083';
 const LAST_INTERSTITIAL_SHOWN_AT_KEY = 'lastInterstitialShownAt';
 const INTERSTITIAL_INTERVAL_MS = 3 * 60 * 1000;
 

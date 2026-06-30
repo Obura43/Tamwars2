@@ -9,10 +9,12 @@ import { CAR_ITEMS } from '@/src/data/marketplaceCatalog';
 import { claimDriveMissionReward, getClaimedDriveMissionIds, getOwnedVirtualAssets } from '@/src/services/walletService';
 
 const { width } = Dimensions.get('window');
-const CITY_SIZE = Math.min(width - 40, 420);
-const CAR_WIDTH = 28;
-const CAR_HEIGHT = 44;
-const MOVE_STEP = 18;
+const CITY_VIEW_WIDTH = Math.min(width - 40, 420);
+const CITY_WIDTH = 640;
+const CITY_HEIGHT = 780;
+const CAR_WIDTH = 34;
+const CAR_HEIGHT = 54;
+const MOVE_STEP = 24;
 
 type Heading = 'up' | 'right' | 'down' | 'left';
 
@@ -22,22 +24,43 @@ const MISSIONS = [
     title: 'CBD to Westlands',
     start: 'CBD',
     destination: 'Westlands',
-    target: { x: CITY_SIZE - 116, y: 34, width: 92, height: 58 },
+    clue: 'Head north-west past Museum Hill.',
+    target: { x: 472, y: 108, width: 112, height: 76 },
   },
   {
     id: 'ngara-park',
     title: 'Ngara to Uhuru Park',
     start: 'Ngara',
     destination: 'Uhuru Park',
-    target: { x: CITY_SIZE - 126, y: CITY_SIZE / 2 + 48, width: 92, height: 54 },
+    clue: 'Find the green zone south of the roundabout.',
+    target: { x: 414, y: 460, width: 136, height: 86 },
   },
   {
     id: 'upperhill-cbd',
     title: 'Upper Hill to CBD',
     start: 'Upper Hill',
     destination: 'CBD',
-    target: { x: 22, y: 24, width: 92, height: 86 },
+    clue: 'Climb back toward the tall towers.',
+    target: { x: 58, y: 96, width: 124, height: 108 },
   },
+];
+
+const BUILDINGS = [
+  { id: 'cbd', label: 'CBD', x: 58, y: 96, width: 124, height: 108, tall: true, tone: '#59606B' },
+  { id: 'museum', label: 'Museum Hill', x: 230, y: 66, width: 104, height: 74, tone: '#48525E' },
+  { id: 'westlands', label: 'Westlands', x: 472, y: 108, width: 112, height: 76, tone: '#525D68' },
+  { id: 'ngara', label: 'Ngara', x: 64, y: 382, width: 114, height: 88, tall: true, tone: '#4E5661' },
+  { id: 'upperhill', label: 'Upper Hill', x: 92, y: 596, width: 132, height: 104, tall: true, tone: '#5B525F' },
+  { id: 'kilimani', label: 'Kilimani', x: 404, y: 610, width: 122, height: 88, tone: '#56515C' },
+  { id: 'estate', label: 'Estate', x: 476, y: 300, width: 102, height: 78, tone: '#4B5660' },
+];
+
+const ROAD_SEGMENTS = [
+  { id: 'thika', type: 'vertical', left: 292, top: 0, width: 86, height: CITY_HEIGHT },
+  { id: 'waiyaki', type: 'horizontal', left: 0, top: 210, width: CITY_WIDTH, height: 84 },
+  { id: 'haile', type: 'horizontal', left: 0, top: 394, width: CITY_WIDTH, height: 78 },
+  { id: 'uhuru', type: 'vertical', left: 162, top: 180, width: 74, height: 560 },
+  { id: 'ring', type: 'horizontal', left: 120, top: 604, width: 440, height: 68 },
 ];
 
 export default function DriveScreen() {
@@ -48,8 +71,8 @@ export default function DriveScreen() {
   const [loading, setLoading] = useState(true);
   const [selectedCarId, setSelectedCarId] = useState<string | null>(carId ?? null);
   const [position, setPosition] = useState({
-    x: CITY_SIZE / 2 - CAR_WIDTH / 2,
-    y: CITY_SIZE - 78,
+    x: CITY_WIDTH / 2 - CAR_WIDTH / 2,
+    y: CITY_HEIGHT - 92,
   });
   const [heading, setHeading] = useState<Heading>('up');
   const [distance, setDistance] = useState(0);
@@ -98,6 +121,16 @@ export default function DriveScreen() {
   }, [ownedCarIds, selectedCarId]);
 
   const activeMission = MISSIONS[activeMissionIndex];
+  const carCenter = {
+    x: position.x + CAR_WIDTH / 2,
+    y: position.y + CAR_HEIGHT / 2,
+  };
+  const destinationCenter = {
+    x: activeMission.target.x + activeMission.target.width / 2,
+    y: activeMission.target.y + activeMission.target.height / 2,
+  };
+  const destinationDistance = Math.hypot(carCenter.x - destinationCenter.x, carCenter.y - destinationCenter.y);
+  const destinationVisible = destinationDistance < 190 || completedMissionIds.includes(activeMission.id);
 
   const carReachedTarget = (nextPosition: { x: number; y: number }) => {
     const carCenterX = nextPosition.x + CAR_WIDTH / 2;
@@ -122,8 +155,8 @@ export default function DriveScreen() {
       if (direction === 'left') next.x -= MOVE_STEP;
       if (direction === 'right') next.x += MOVE_STEP;
 
-      next.x = Math.max(18, Math.min(CITY_SIZE - CAR_WIDTH - 18, next.x));
-      next.y = Math.max(18, Math.min(CITY_SIZE - CAR_HEIGHT - 18, next.y));
+      next.x = Math.max(18, Math.min(CITY_WIDTH - CAR_WIDTH - 18, next.x));
+      next.y = Math.max(18, Math.min(CITY_HEIGHT - CAR_HEIGHT - 18, next.y));
 
       if (next.x !== current.x || next.y !== current.y) {
         setDistance((value) => value + 1);
@@ -157,10 +190,19 @@ export default function DriveScreen() {
       return;
     }
 
-    setMissionNotice(`${missionTitle} complete: +${result.amount.toLocaleString()} TWS`);
+    setMissionNotice(`${missionTitle} complete: +${result.amount.toLocaleString()} Coins`);
   };
 
   const carRotation = heading === 'up' ? '0deg' : heading === 'right' ? '90deg' : heading === 'down' ? '180deg' : '270deg';
+  const activeCarColor =
+    activeCar?.color === 'Volcano Red'
+      ? COLORS.wantam
+      : activeCar?.color === 'Champagne Gold'
+      ? COLORS.gold
+      : activeCar?.color === 'Midnight Black'
+      ? '#1E2228'
+      : '#F4F6F8';
+  const activeCarAccent = activeCar?.color === 'Pearl White' ? '#B9C4D1' : 'rgba(255,255,255,0.72)';
 
   if (loading) {
     return (
@@ -176,7 +218,7 @@ export default function DriveScreen() {
         <View style={styles.emptyState}>
           <Car color={COLORS.gold} size={44} />
           <Text style={styles.emptyTitle}>Sign in to drive</Text>
-          <Text style={styles.emptyText}>Buy toy luxury cars with TWS, then drive them through TamWar City.</Text>
+          <Text style={styles.emptyText}>Buy toy luxury cars with Coins, then drive them through TamWar City.</Text>
           <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/signup')} activeOpacity={0.8}>
             <Text style={styles.primaryButtonText}>Create Account</Text>
           </TouchableOpacity>
@@ -261,7 +303,10 @@ export default function DriveScreen() {
           </Text>
         </View>
         <Text style={styles.missionText}>
-          Drive from {activeMission.start} to the marked {activeMission.destination} zone for a TWS reward.
+          {activeMission.clue} The destination marker appears when you get close enough.
+        </Text>
+        <Text style={styles.destinationStatus}>
+          {destinationVisible ? `${activeMission.destination} revealed` : `${activeMission.destination} hidden`}
         </Text>
         {missionNotice ? <Text style={styles.missionNotice}>{missionNotice}</Text> : null}
         <View style={styles.missionTabs}>
@@ -285,54 +330,116 @@ export default function DriveScreen() {
         </View>
       </View>
 
-      <View style={[styles.city, { width: CITY_SIZE, height: CITY_SIZE }]}>
-        <View style={[styles.roadVertical, { left: CITY_SIZE / 2 - 35 }]} />
-        <View style={[styles.roadHorizontal, { top: CITY_SIZE / 2 - 35 }]} />
-        <View style={[styles.roundabout, { left: CITY_SIZE / 2 - 44, top: CITY_SIZE / 2 - 44 }]} />
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.cityScrollContent}
+      >
+        <View style={[styles.city, { width: CITY_WIDTH, height: CITY_HEIGHT }]}>
+          <View style={styles.grassGrid} />
+          {ROAD_SEGMENTS.map((road) => (
+            <View
+              key={road.id}
+              style={[
+                styles.road,
+                road.type === 'vertical' ? styles.roadVertical : styles.roadHorizontal,
+                {
+                  left: road.left,
+                  top: road.top,
+                  width: road.width,
+                  height: road.height,
+                },
+              ]}
+            >
+              <View style={road.type === 'vertical' ? styles.laneLineVertical : styles.laneLineHorizontal} />
+            </View>
+          ))}
+          <View style={[styles.roundabout, { left: 278, top: 376 }]} />
 
-        <View style={[styles.block, styles.blockTall, { left: 22, top: 24 }]}>
-          <Text style={styles.blockText}>CBD</Text>
-        </View>
-        <View style={[styles.block, { right: 24, top: 34 }]}>
-          <Text style={styles.blockText}>Westlands</Text>
-        </View>
-        <View style={[styles.block, { left: 26, bottom: 34 }]}>
-          <Text style={styles.blockText}>Upper Hill</Text>
-        </View>
-        <View style={[styles.block, styles.blockTall, { right: 26, bottom: 28 }]}>
-          <Text style={styles.blockText}>Ngara</Text>
-        </View>
-        <View style={[styles.park, { right: 34, top: CITY_SIZE / 2 + 48 }]}>
-          <Text style={styles.parkText}>Uhuru Park</Text>
-        </View>
+          <View style={[styles.park, { left: 414, top: 460 }]}>
+            <Text style={styles.parkText}>Uhuru Park</Text>
+          </View>
+          <View style={[styles.park, styles.smallPark, { left: 410, top: 32 }]}>
+            <Text style={styles.parkText}>Karura Edge</Text>
+          </View>
 
-        <View
-          style={[
-            styles.destinationMarker,
-            {
-              left: activeMission.target.x + activeMission.target.width / 2 - 14,
-              top: activeMission.target.y + activeMission.target.height / 2 - 14,
-            },
-          ]}
-        >
-          <Text style={styles.destinationMarkerText}>GO</Text>
-        </View>
+          {BUILDINGS.map((building) => (
+            <View
+              key={building.id}
+              style={[
+                styles.building,
+                building.tall && styles.buildingTall,
+                {
+                  left: building.x,
+                  top: building.y,
+                  width: building.width,
+                  height: building.height,
+                  backgroundColor: building.tone,
+                },
+              ]}
+            >
+              <View style={styles.buildingRoof} />
+              <Text style={styles.blockText}>{building.label}</Text>
+            </View>
+          ))}
 
-        <View
-          style={[
-            styles.toyCar,
-            {
-              left: position.x,
-              top: position.y,
-              backgroundColor: activeCar.color === 'Volcano Red' ? COLORS.wantam : activeCar.color === 'Champagne Gold' ? COLORS.gold : COLORS.white,
-              transform: [{ rotate: carRotation }],
-            },
-          ]}
-        >
-          <View style={styles.carWindow} />
-          <View style={styles.carNose} />
+          <View style={[styles.cityLabel, { left: 294, top: 20 }]}>
+            <Text style={styles.cityLabelText}>THIKA ROAD</Text>
+          </View>
+          <View style={[styles.cityLabel, { left: 402, top: 400 }]}>
+            <Text style={styles.cityLabelText}>HAILE SELASSIE</Text>
+          </View>
+
+          {destinationVisible ? (
+            <View
+              style={[
+                styles.destinationMarker,
+                {
+                  left: activeMission.target.x + activeMission.target.width / 2 - 18,
+                  top: activeMission.target.y + activeMission.target.height / 2 - 18,
+                },
+              ]}
+            >
+              <Text style={styles.destinationMarkerText}>GO</Text>
+            </View>
+          ) : (
+            <View style={[styles.hiddenMarker, { left: 306, top: 338 }]}>
+              <Text style={styles.hiddenMarkerText}>?</Text>
+            </View>
+          )}
+
+          <View
+            style={[
+              styles.carShadow,
+              {
+                left: position.x - 4,
+                top: position.y + CAR_HEIGHT - 10,
+                transform: [{ rotate: carRotation }],
+              },
+            ]}
+          />
+          <View
+            style={[
+              styles.toyCar,
+              {
+                left: position.x,
+                top: position.y,
+                backgroundColor: activeCarColor,
+                borderColor: activeCarAccent,
+                transform: [{ rotate: carRotation }],
+              },
+            ]}
+          >
+            <View style={[styles.carRoof, { backgroundColor: activeCarAccent }]} />
+            <View style={styles.carWindow} />
+            <View style={styles.carHood} />
+            <View style={styles.carLightRow}>
+              <View style={styles.carLight} />
+              <View style={styles.carLight} />
+            </View>
+          </View>
         </View>
-      </View>
+      </ScrollView>
 
       <View style={styles.controls}>
         <TouchableOpacity style={styles.controlButton} onPress={() => moveCar('up')} activeOpacity={0.8}>
@@ -489,6 +596,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textSecondary,
     lineHeight: 19,
+    marginBottom: 8,
+  },
+  destinationStatus: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 12,
+    color: COLORS.gold,
     marginBottom: 12,
   },
   missionNotice: {
@@ -526,50 +639,92 @@ const styles = StyleSheet.create({
   missionTabTextActive: {
     color: COLORS.gold,
   },
+  cityScrollContent: {
+    paddingHorizontal: Math.max((CITY_VIEW_WIDTH - CITY_WIDTH) / 2, 0),
+  },
   city: {
     alignSelf: 'center',
     borderRadius: 12,
-    backgroundColor: '#162018',
+    backgroundColor: '#172319',
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: COLORS.border,
   },
-  roadVertical: {
-    position: 'absolute',
-    top: 0,
-    width: 70,
-    height: '100%',
-    backgroundColor: '#303436',
-  },
-  roadHorizontal: {
+  grassGrid: {
     position: 'absolute',
     left: 0,
+    top: 0,
     width: '100%',
-    height: 70,
+    height: '100%',
+    backgroundColor: '#182B1D',
+    opacity: 0.9,
+  },
+  road: {
+    position: 'absolute',
     backgroundColor: '#303436',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+  },
+  roadVertical: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  roadHorizontal: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  laneLineVertical: {
+    width: 2,
+    height: '92%',
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.42)',
+  },
+  laneLineHorizontal: {
+    width: '94%',
+    height: 2,
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.42)',
   },
   roundabout: {
     position: 'absolute',
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: '#465046',
-    borderWidth: 12,
+    width: 104,
+    height: 104,
+    borderRadius: 52,
+    backgroundColor: '#52624D',
+    borderWidth: 14,
     borderColor: '#303436',
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
   },
-  block: {
+  building: {
     position: 'absolute',
-    width: 92,
-    height: 58,
     borderRadius: 8,
-    backgroundColor: '#4B4F57',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
+    borderColor: 'rgba(255,255,255,0.16)',
+    shadowColor: '#000',
+    shadowOpacity: 0.5,
+    shadowRadius: 7,
+    shadowOffset: { width: 6, height: 8 },
+    elevation: 6,
   },
-  blockTall: {
-    height: 86,
+  buildingTall: {
+    borderTopWidth: 6,
+    borderTopColor: 'rgba(255,255,255,0.18)',
+  },
+  buildingRoof: {
+    position: 'absolute',
+    top: 8,
+    left: 10,
+    right: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'rgba(255,255,255,0.12)',
   },
   blockText: {
     fontFamily: 'Inter-Bold',
@@ -579,12 +734,19 @@ const styles = StyleSheet.create({
   },
   park: {
     position: 'absolute',
-    width: 92,
-    height: 54,
+    width: 136,
+    height: 86,
     borderRadius: 12,
     backgroundColor: COLORS.tutam,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.16)',
+  },
+  smallPark: {
+    width: 118,
+    height: 62,
+    backgroundColor: '#087B4F',
   },
   parkText: {
     fontFamily: 'Inter-Bold',
@@ -594,42 +756,104 @@ const styles = StyleSheet.create({
   },
   destinationMarker: {
     position: 'absolute',
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: COLORS.gold,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: COLORS.white,
+    shadowColor: COLORS.gold,
+    shadowOpacity: 0.65,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 0 },
   },
   destinationMarkerText: {
     fontFamily: 'Inter-Black',
-    fontSize: 9,
+    fontSize: 10,
     color: COLORS.background,
+  },
+  hiddenMarker: {
+    position: 'absolute',
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: COLORS.surfaceLight,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hiddenMarkerText: {
+    fontFamily: 'Inter-Black',
+    fontSize: 17,
+    color: COLORS.textSecondary,
+  },
+  cityLabel: {
+    position: 'absolute',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0,0,0,0.28)',
+  },
+  cityLabelText: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 9,
+    color: 'rgba(255,255,255,0.72)',
+  },
+  carShadow: {
+    position: 'absolute',
+    width: CAR_WIDTH + 8,
+    height: 14,
+    borderRadius: 9,
+    backgroundColor: 'rgba(0,0,0,0.42)',
   },
   toyCar: {
     position: 'absolute',
     width: CAR_WIDTH,
     height: CAR_HEIGHT,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: COLORS.background,
+    shadowColor: '#000',
+    shadowOpacity: 0.48,
+    shadowRadius: 7,
+    shadowOffset: { width: 2, height: 5 },
+    elevation: 8,
   },
-  carWindow: {
-    width: 14,
-    height: 12,
-    borderRadius: 4,
-    backgroundColor: '#6AB7FF',
+  carRoof: {
+    width: 20,
+    height: 16,
+    borderRadius: 6,
     marginTop: 8,
   },
-  carNose: {
-    width: 18,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: 'rgba(0,0,0,0.28)',
-    marginTop: 13,
+  carWindow: {
+    width: 16,
+    height: 10,
+    borderRadius: 4,
+    backgroundColor: '#7BC6FF',
+    marginTop: -12,
+    opacity: 0.9,
+  },
+  carHood: {
+    width: 22,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: 'rgba(0,0,0,0.18)',
+    marginTop: 11,
+  },
+  carLightRow: {
+    width: 22,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 3,
+  },
+  carLight: {
+    width: 5,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#FFF2A8',
   },
   controls: {
     alignItems: 'center',

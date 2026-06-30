@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { COLORS } from '@/lib/constants';
-import { Home, Trophy, BarChart3, User } from 'lucide-react-native';
+import { Home, Trophy, BarChart3, User, MessageCircle } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -8,19 +8,19 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarAllowFontScaling: false,
+        tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: COLORS.surface,
           borderTopColor: COLORS.border,
           borderTopWidth: 1,
-          height: 74,
-          paddingBottom: 12,
+          height: 66,
+          paddingBottom: 8,
           paddingTop: 8,
         },
         tabBarActiveTintColor: COLORS.white,
         tabBarInactiveTintColor: COLORS.textMuted,
-        tabBarLabelStyle: {
-          fontFamily: 'Inter-SemiBold',
-          fontSize: 12,
+        tabBarItemStyle: {
+          justifyContent: 'center',
         },
       }}
     >
@@ -43,6 +43,13 @@ export default function TabLayout() {
         options={{
           title: 'Stats',
           tabBarIcon: ({ color, size }) => <BarChart3 color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="shouts"
+        options={{
+          title: 'Shouts',
+          tabBarIcon: ({ color, size }) => <MessageCircle color={color} size={size} />,
         }}
       />
       <Tabs.Screen

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as Linking from 'expo-linking';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { updatePassword } from '@/src/services/authService';
+import { preparePasswordResetSession, updatePassword } from '@/src/services/authService';
 import { COLORS } from '@/lib/constants';
 import { ArrowLeft } from 'lucide-react-native';
 
@@ -13,8 +14,59 @@ export default function ResetPasswordScreen() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
+  const [preparingSession, setPreparingSession] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const prepareSession = async (url?: string | null) => {
+      const resetUrl =
+        Platform.OS === 'web' && typeof window !== 'undefined'
+          ? window.location.href
+          : url;
+
+      if (!resetUrl) {
+        if (mounted) {
+          setError('Open this screen from the password reset email link.');
+          setPreparingSession(false);
+        }
+        return;
+      }
+
+      const result = await preparePasswordResetSession(resetUrl);
+
+      if (!mounted) return;
+
+      if (result.ready) {
+        setSessionReady(true);
+        setError('');
+      } else {
+        setError(result.error ?? 'Password reset session missing. Please request a new reset link.');
+      }
+
+      setPreparingSession(false);
+    };
+
+    Linking.getInitialURL().then(prepareSession);
+
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      setPreparingSession(true);
+      prepareSession(url);
+    });
+
+    return () => {
+      mounted = false;
+      subscription.remove();
+    };
+  }, []);
 
   const handleReset = async () => {
+    if (!sessionReady) {
+      setError('Password reset session missing. Please open the latest reset email link again.');
+      return;
+    }
+
     if (!password || !confirmPassword) {
       setError('Please fill in both password fields');
       return;
@@ -59,7 +111,9 @@ export default function ResetPasswordScreen() {
 
         <View style={styles.content}>
           <Text style={styles.title}>Reset Password</Text>
-          <Text style={styles.subtitle}>Choose a new password for your TamWar account</Text>
+          <Text style={styles.subtitle}>
+            {preparingSession ? 'Preparing your reset link...' : 'Choose a new password for your TamWar account'}
+          </Text>
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
           {message ? <Text style={styles.successText}>{message}</Text> : null}
@@ -84,9 +138,9 @@ export default function ResetPasswordScreen() {
           </View>
 
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+            style={[styles.button, (loading || preparingSession || !sessionReady) && styles.buttonDisabled]}
             onPress={handleReset}
-            disabled={loading}
+            disabled={loading || preparingSession || !sessionReady}
             activeOpacity={0.8}
           >
             <Text style={styles.buttonText}>{loading ? 'Updating...' : 'Update Password'}</Text>

@@ -8,6 +8,7 @@ export interface TwsWalletTransaction {
     | 'starter_bonus'
     | 'tap_earning'
     | 'drive_mission_reward'
+    | 'rewarded_ad_bonus'
     | 'housing_purchase'
     | 'car_purchase'
     | 'purchase_refund';
@@ -75,7 +76,21 @@ export async function claimDriveMissionReward(
   });
 
   if (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: error.message.replace(/TWS/g, 'Coins') };
+  }
+
+  return { success: true, amount: data ?? 0 };
+}
+
+export async function claimRewardedAdBonus(
+  rewardId: string
+): Promise<{ success: true; amount: number } | { success: false; error: string }> {
+  const { data, error } = await supabase.rpc('claim_rewarded_ad_bonus', {
+    p_reward_id: rewardId,
+  });
+
+  if (error) {
+    return { success: false, error: error.message.replace(/TWS/g, 'Coins') };
   }
 
   return { success: true, amount: data ?? 0 };

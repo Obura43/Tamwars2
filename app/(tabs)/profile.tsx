@@ -23,7 +23,7 @@ interface UserStats {
   totalTaps: number;
 }
 
-const TWS_PER_TAP = 3;
+const COINS_PER_TAP = 3;
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -96,6 +96,8 @@ export default function ProfileScreen() {
         return 'Tap Earnings';
       case 'drive_mission_reward':
         return 'Drive Mission Reward';
+      case 'rewarded_ad_bonus':
+        return 'Rewarded Ad Bonus';
       case 'housing_purchase':
         return 'Housing Purchase';
       case 'car_purchase':
@@ -103,7 +105,7 @@ export default function ProfileScreen() {
       case 'purchase_refund':
         return 'Purchase Refund';
       default:
-        return 'TWS Transaction';
+        return 'Coin Transaction';
     }
   };
 
@@ -228,7 +230,7 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.walletContent}>
             <Text style={styles.walletLabel}>Spendable Balance</Text>
-            <Text style={styles.walletValue}>{twsBalance.toLocaleString()} TWS</Text>
+            <Text style={styles.walletValue}>{twsBalance.toLocaleString()} Coins</Text>
           </View>
           <TouchableOpacity
             style={styles.walletStoreButton}
@@ -246,7 +248,7 @@ export default function ProfileScreen() {
             activeOpacity={0.8}
           >
             <View>
-              <Text style={styles.historyTitle}>TWS Ledger</Text>
+              <Text style={styles.historyTitle}>Coins Ledger</Text>
               <Text style={styles.historySubtitle}>Latest {walletTransactions.length} wallet entries</Text>
             </View>
             {walletExpanded ? (
@@ -259,7 +261,7 @@ export default function ProfileScreen() {
           {walletExpanded && (
             <View style={styles.historyList}>
               {walletTransactions.length === 0 ? (
-                <Text style={styles.historyEmpty}>No TWS transactions yet.</Text>
+                <Text style={styles.historyEmpty}>No coin transactions yet.</Text>
               ) : (
                 walletTransactions.map((transaction) => {
                   const positive = transaction.amount > 0;
@@ -271,7 +273,7 @@ export default function ProfileScreen() {
                         <Text style={styles.transactionDate}>{formatHistoryDate(transaction.created_at)}</Text>
                       </View>
                       <Text style={[styles.transactionAmount, positive ? styles.transactionCredit : styles.transactionDebit]}>
-                        {positive ? '+' : '-'}{Math.abs(transaction.amount).toLocaleString()} TWS
+                        {positive ? '+' : '-'}{Math.abs(transaction.amount).toLocaleString()} Coins
                       </Text>
                     </View>
                   );
@@ -289,7 +291,7 @@ export default function ProfileScreen() {
           >
             <View>
               <Text style={styles.historyTitle}>Taps History</Text>
-              <Text style={styles.historySubtitle}>Latest {tapHistory.length} validated sessions at 3 TWS per tap</Text>
+              <Text style={styles.historySubtitle}>Latest {tapHistory.length} validated sessions at 3 Coins per tap</Text>
             </View>
             {historyExpanded ? (
               <ChevronUp color={COLORS.white} size={22} />
@@ -319,7 +321,7 @@ export default function ProfileScreen() {
                     <View style={styles.historySessionStats}>
                       <Text style={styles.historyTaps}>{session.tap_count.toLocaleString()} taps</Text>
                       <Text style={styles.historyCoins}>
-                        {(session.tap_count * TWS_PER_TAP).toLocaleString()} TWS
+                        {(session.tap_count * COINS_PER_TAP).toLocaleString()} Coins
                       </Text>
                     </View>
                   </View>
@@ -387,7 +389,7 @@ export default function ProfileScreen() {
                             ? `${unit.location}, ${unit.city}`
                             : 'Virtual housing unit'}
                         </Text>
-                        <Text style={styles.assetPrice}>{asset.price_tws.toLocaleString()} TWS</Text>
+                        <Text style={styles.assetPrice}>{asset.price_tws.toLocaleString()} Coins</Text>
                       </View>
                       <TouchableOpacity
                         style={styles.assetActionButton}

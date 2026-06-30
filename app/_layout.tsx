@@ -7,6 +7,7 @@ import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold, Inter_900
 import * as SplashScreen from 'expo-splash-screen';
 import { initializeMobileAds } from '@/components/MobileAds';
 import { loadInterstitial } from '@/components/InterstitialAd';
+import { loadRewardedAd } from '@/components/RewardedAd';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,6 +27,7 @@ export default function RootLayout() {
         try {
           await initializeMobileAds();
           loadInterstitial();
+          loadRewardedAd();
           console.log('AdMob initialized');
         } catch (err) {
           console.error('AdMob initialization failed:', err);
