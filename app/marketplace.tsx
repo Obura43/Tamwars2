@@ -42,6 +42,15 @@ export default function MarketplaceScreen() {
   const [buyingId, setBuyingId] = useState<string | null>(null);
   const [rewardLoading, setRewardLoading] = useState(false);
 
+  const goBackOrHome = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace('/(tabs)/home');
+  };
+
   const loadWallet = useCallback(async () => {
     if (!user) {
       setBalance(0);
@@ -203,7 +212,7 @@ export default function MarketplaceScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.backButton} onPress={goBackOrHome} activeOpacity={0.8}>
             <ChevronLeft color={COLORS.white} size={24} />
           </TouchableOpacity>
           <View style={styles.headerTitleWrap}>

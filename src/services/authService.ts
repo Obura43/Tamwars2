@@ -25,7 +25,7 @@ export async function signInWithEmail(email: string, password: string): Promise<
   if (error) {
     console.log('[AUTH] login error:', error.message);
     if (error.message.toLowerCase().includes('email not confirmed')) {
-      return { error: 'Please verify your email before logging in.' };
+      return { error: 'Email confirmation is still enabled in Supabase. Disable it to allow instant login.' };
     }
     return { error: error.message };
   }

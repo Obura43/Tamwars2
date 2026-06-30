@@ -85,6 +85,15 @@ export default function BattleScreen() {
 
   const sideColor = side === 'WANTAM' ? COLORS.wantam : COLORS.tutam;
 
+  const closeBattle = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace('/(tabs)/home');
+  };
+
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
@@ -193,7 +202,7 @@ export default function BattleScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: COLORS.background }]}>
       {gameState === 'ready' && (
         <View style={styles.readyContainer}>
-          <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
+          <TouchableOpacity style={styles.closeButton} onPress={closeBattle}>
             <X color={COLORS.white} size={24} />
           </TouchableOpacity>
           <View style={styles.readyContent}>

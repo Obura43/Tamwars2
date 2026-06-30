@@ -80,6 +80,15 @@ export default function DriveScreen() {
   const [completedMissionIds, setCompletedMissionIds] = useState<string[]>([]);
   const [missionNotice, setMissionNotice] = useState('');
 
+  const goBackOrStore = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace({ pathname: '/marketplace', params: { tab: 'cars' } } as any);
+  };
+
   const loadCars = useCallback(async () => {
     if (!user) {
       setOwnedCarIds([]);
@@ -251,7 +260,7 @@ export default function DriveScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.backButton} onPress={goBackOrStore} activeOpacity={0.8}>
           <ChevronLeft color={COLORS.white} size={24} />
         </TouchableOpacity>
         <View style={styles.headerCopy}>

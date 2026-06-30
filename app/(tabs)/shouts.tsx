@@ -13,6 +13,7 @@ import {
   subscribeToBattleShouts,
 } from '@/src/services/battleShoutsService';
 import { getProfile, Profile } from '@/src/services/profileService';
+import BannerAdvertisement from '@/components/BannerAd';
 
 export default function ShoutsScreen() {
   const router = useRouter();
@@ -90,6 +91,12 @@ export default function ShoutsScreen() {
       hour: '2-digit',
       minute: '2-digit',
     }).format(new Date(value));
+
+  const renderFeedAd = (key: string) => (
+    <View key={key} style={styles.bannerContainer}>
+      <BannerAdvertisement />
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -170,21 +177,28 @@ export default function ShoutsScreen() {
             <Text style={styles.emptyText}>No shouts yet. Start the noise.</Text>
           ) : (
             <View style={styles.feedList}>
-              {shouts.map((shout) => (
-                <View key={shout.id} style={styles.shoutRow}>
-                  <View style={[styles.shoutSideBar, { backgroundColor: shout.side === 'WANTAM' ? COLORS.wantam : COLORS.tutam }]} />
-                  <View style={styles.shoutBody}>
-                    <View style={styles.shoutMetaRow}>
-                      <Text style={styles.shoutUsername} numberOfLines={1}>{shout.username}</Text>
-                      <Text style={styles.shoutTime}>{formatTime(shout.created_at)}</Text>
+              {shouts.map((shout, index) => (
+                <View key={shout.id}>
+                  {index === 2 && renderFeedAd('shouts-feed-ad-top')}
+                  <View style={styles.shoutRow}>
+                    <View style={[styles.shoutSideBar, { backgroundColor: shout.side === 'WANTAM' ? COLORS.wantam : COLORS.tutam }]} />
+                    <View style={styles.shoutBody}>
+                      <View style={styles.shoutMetaRow}>
+                        <Text style={styles.shoutUsername} numberOfLines={1}>{shout.username}</Text>
+                        <Text style={styles.shoutTime}>{formatTime(shout.created_at)}</Text>
+                      </View>
+                      <Text style={styles.shoutMessage}>{getBattleShoutText(shout.message_id)}</Text>
+                      <Text style={[styles.shoutSide, { color: shout.side === 'WANTAM' ? COLORS.wantam : COLORS.tutam }]}>
+                        {shout.side}
+                      </Text>
                     </View>
-                    <Text style={styles.shoutMessage}>{getBattleShoutText(shout.message_id)}</Text>
-                    <Text style={[styles.shoutSide, { color: shout.side === 'WANTAM' ? COLORS.wantam : COLORS.tutam }]}>
-                      {shout.side}
-                    </Text>
                   </View>
+                  {index === 8 && renderFeedAd('shouts-feed-ad-middle')}
+                  {index === 16 && renderFeedAd('shouts-feed-ad-bottom')}
                 </View>
               ))}
+              {shouts.length > 0 && shouts.length <= 2 && renderFeedAd('shouts-feed-ad-short-top')}
+              {shouts.length > 0 && shouts.length <= 8 && renderFeedAd('shouts-feed-ad-short-middle')}
             </View>
           )}
         </View>
@@ -344,6 +358,12 @@ const styles = StyleSheet.create({
   },
   feedList: {
     gap: 10,
+  },
+  bannerContainer: {
+    minHeight: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
   },
   emptyText: {
     fontFamily: 'Inter-Regular',

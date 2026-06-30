@@ -15,6 +15,15 @@ export default function HousingDetailScreen() {
   const [asset, setAsset] = useState<OwnedVirtualAsset | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const goBackOrStore = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace({ pathname: '/marketplace', params: { tab: 'housing' } } as any);
+  };
+
   const loadAsset = useCallback(async () => {
     if (!user) {
       setAsset(null);
@@ -58,7 +67,7 @@ export default function HousingDetailScreen() {
           <Building2 color={COLORS.gold} size={46} />
           <Text style={styles.emptyTitle}>Unit not found</Text>
           <Text style={styles.emptyText}>This virtual housing unit is not in your assets.</Text>
-          <TouchableOpacity style={styles.primaryButton} onPress={() => router.back()} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.primaryButton} onPress={goBackOrStore} activeOpacity={0.8}>
             <Text style={styles.primaryButtonText}>Go Back</Text>
           </TouchableOpacity>
         </View>
@@ -75,7 +84,7 @@ export default function HousingDetailScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.backButton} onPress={goBackOrStore} activeOpacity={0.8}>
             <ChevronLeft color={COLORS.white} size={24} />
           </TouchableOpacity>
           <View style={styles.headerCopy}>

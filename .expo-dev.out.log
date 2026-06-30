@@ -349,3 +349,111 @@ Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
 Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
 Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
 Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: INITIAL_SESSION session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] initial session: exists
+Web  LOG  [AUTH_CONTEXT] initial email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  AdMob initialized
+Web  LOG  AdMob initialized
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: TOKEN_REFRESHED session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web Bundled 7870ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+Web  WARN  "shadow*" style props are deprecated. Use "boxShadow".
+Web  WARN  props.pointerEvents is deprecated. Use style.pointerEvents
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: INITIAL_SESSION session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] initial session: exists
+Web  LOG  [AUTH_CONTEXT] initial email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  AdMob initialized
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  WARN  "textShadow*" style props are deprecated. Use "textShadow".
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web Bundled 247ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+Web  WARN  "shadow*" style props are deprecated. Use "boxShadow".
+Web  WARN  "textShadow*" style props are deprecated. Use "textShadow".
+Web  WARN  props.pointerEvents is deprecated. Use style.pointerEvents
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: INITIAL_SESSION session: null
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: undefined
+Web  LOG  [AUTH_CONTEXT] initial session: null
+Web  LOG  [AUTH_CONTEXT] initial email_confirmed_at: undefined
+Web  LOG  AdMob initialized
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T11:56:56.690527Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: USER_UPDATED session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T11:56:56.690527Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: TOKEN_REFRESHED session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: INITIAL_SESSION session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T11:56:56.690527Z
+Web  LOG  [AUTH_CONTEXT] initial session: exists
+Web  LOG  [AUTH_CONTEXT] initial email_confirmed_at: 2026-05-18T11:56:56.690527Z
+Web  LOG  AdMob initialized
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: INITIAL_SESSION session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] initial session: exists
+Web  LOG  [AUTH_CONTEXT] initial email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  AdMob initialized
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T11:56:56.690527Z
+Web Bundled 442ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+Web  WARN  "shadow*" style props are deprecated. Use "boxShadow".
+Web  WARN  "textShadow*" style props are deprecated. Use "textShadow".
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: INITIAL_SESSION session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T11:56:56.690527Z
+Web  LOG  [AUTH_CONTEXT] initial session: exists
+Web  LOG  [AUTH_CONTEXT] initial email_confirmed_at: 2026-05-18T11:56:56.690527Z
+Web  LOG  AdMob initialized
+Web  WARN  props.pointerEvents is deprecated. Use style.pointerEvents
+Web Bundled 297ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 205ms node_modules\expo-router\entry.js (1 module)
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange event: SIGNED_IN session: exists
+Web  LOG  [AUTH_CONTEXT] onAuthStateChange email_confirmed_at: 2026-05-18T12:43:55.267901Z
