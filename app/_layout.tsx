@@ -44,6 +44,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="login" />
         <Stack.Screen name="signup" />
+        <Stack.Screen name="reset-password" />
         <Stack.Screen name="verify-email" />
         <Stack.Screen name="guest-side-select" />
         <Stack.Screen name="profile-setup" />

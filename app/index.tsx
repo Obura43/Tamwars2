@@ -9,26 +9,20 @@ import { COLORS } from '@/lib/constants';
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const { user, loading, isEmailVerified } = useAuth();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     if (loading) return;
 
-    console.log('[INDEX] guard: user:', user?.id, 'isEmailVerified:', isEmailVerified);
+    console.log('[INDEX] guard: user:', user?.id);
 
     if (!user) {
       router.replace('/(tabs)/home');
       return;
     }
 
-    if (!isEmailVerified) {
-      console.log('[INDEX] redirecting unverified user to verify-email');
-      router.replace({ pathname: '/verify-email', params: { email: user.email ?? '' } });
-      return;
-    }
-
     hasProfile(user.id).then((exists) => {
-      console.log('[INDEX] verified user, profile exists:', exists);
+      console.log('[INDEX] signed-in user, profile exists:', exists);
       if (exists) {
         claimPendingGuestScore(user.id);
         router.replace('/(tabs)/home');
@@ -36,7 +30,7 @@ export default function WelcomeScreen() {
         router.replace('/profile-setup');
       }
     });
-  }, [user, loading, isEmailVerified]);
+  }, [router, user, loading]);
 
   if (loading || user === null) {
     return (

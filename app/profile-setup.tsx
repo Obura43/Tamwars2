@@ -10,19 +10,14 @@ import { ChevronDown } from 'lucide-react-native';
 
 export default function ProfileSetupScreen() {
   const router = useRouter();
-  const { user, isEmailVerified } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!user) {
       console.log('[PROFILE_SETUP] no user, redirecting to welcome');
       router.replace('/');
-      return;
     }
-    if (!isEmailVerified) {
-      console.log('[PROFILE_SETUP] unverified user, redirecting to verify-email');
-      router.replace({ pathname: '/verify-email', params: { email: user.email ?? '' } });
-    }
-  }, [user, isEmailVerified]);
+  }, [router, user]);
   const [username, setUsername] = useState('');
   const [county, setCounty] = useState('');
   const [university, setUniversity] = useState('');

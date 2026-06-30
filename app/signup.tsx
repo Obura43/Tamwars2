@@ -2,23 +2,37 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { signUpWithEmail, signOut } from '@/src/services/authService';
+import { signUpWithEmail } from '@/src/services/authService';
 import { COLORS } from '@/lib/constants';
 import { ArrowLeft } from 'lucide-react-native';
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignupScreen() {
   const router = useRouter();
   const { claimScore } = useLocalSearchParams<{ claimScore?: string }>();
   const isClaimingScore = claimScore === '1';
   const [email, setEmail] = useState('');
+  const [confirmEmail, setConfirmEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSignup = async () => {
-    if (!email || !password || !confirmPassword) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedConfirmEmail = confirmEmail.trim().toLowerCase();
+
+    if (!email || !confirmEmail || !password || !confirmPassword) {
       setError('Please fill in all fields');
+      return;
+    }
+    if (!EMAIL_PATTERN.test(normalizedEmail)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    if (normalizedEmail !== normalizedConfirmEmail) {
+      setError('Emails do not match');
       return;
     }
     if (password !== confirmPassword) {
@@ -32,7 +46,7 @@ export default function SignupScreen() {
     setError('');
     setLoading(true);
 
-    const result = await signUpWithEmail(email.trim(), password);
+    const result = await signUpWithEmail(normalizedEmail, password);
 
     setLoading(false);
     if ('error' in result) {
@@ -40,11 +54,8 @@ export default function SignupScreen() {
       return;
     }
 
-    // Sign out so the unverified session doesn't trigger the auth guard
-    await signOut();
-    console.log('[SIGNUP] account created, signed out, redirecting to verify-email');
-
-    router.replace({ pathname: '/verify-email', params: { email: email.trim() } });
+    console.log('[SIGNUP] account created, redirecting to profile setup');
+    router.replace('/profile-setup');
   };
 
   return (
@@ -72,6 +83,16 @@ export default function SignupScreen() {
               placeholderTextColor={COLORS.textMuted}
               value={email}
               onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Re-enter Email"
+              placeholderTextColor={COLORS.textMuted}
+              value={confirmEmail}
+              onChangeText={setConfirmEmail}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}

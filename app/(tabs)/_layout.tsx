@@ -1,22 +1,8 @@
-import { useEffect } from 'react';
-import { Tabs, useRouter } from 'expo-router';
-import { useAuth } from '@/lib/auth-context';
+import { Tabs } from 'expo-router';
 import { COLORS } from '@/lib/constants';
 import { Home, Trophy, BarChart3, User } from 'lucide-react-native';
 
 export default function TabLayout() {
-  const router = useRouter();
-  const { user, loading, isEmailVerified } = useAuth();
-
-  useEffect(() => {
-    if (loading) return;
-    console.log('[TABS] guard: user:', user?.id, 'isEmailVerified:', isEmailVerified);
-    if (user && !isEmailVerified) {
-      console.log('[TABS] unverified user, redirecting to verify-email');
-      router.replace({ pathname: '/verify-email', params: { email: user.email ?? '' } });
-    }
-  }, [user, loading, isEmailVerified]);
-
   return (
     <Tabs
       screenOptions={{

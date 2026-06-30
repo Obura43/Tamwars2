@@ -2,86 +2,49 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Linking from 'expo-linking';
-import { sendPasswordResetEmail, signInWithEmail } from '@/src/services/authService';
-import { claimPendingGuestScore } from '@/src/services/gameService';
-import { hasProfile } from '@/src/services/profileService';
+import { updatePassword } from '@/src/services/authService';
 import { COLORS } from '@/lib/constants';
 import { ArrowLeft } from 'lucide-react-native';
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-export default function LoginScreen() {
+export default function ResetPasswordScreen() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [resetLoading, setResetLoading] = useState(false);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setError('Please fill in all fields');
+  const handleReset = async () => {
+    if (!password || !confirmPassword) {
+      setError('Please fill in both password fields');
       return;
     }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     setError('');
     setMessage('');
     setLoading(true);
 
-    const result = await signInWithEmail(email.trim(), password);
-
-    if ('error' in result) {
-      setLoading(false);
-      setError(result.error);
-      console.log('[LOGIN] error:', result.error);
-      return;
-    }
-
-    const userId = result.userId;
-
-    if (userId) {
-      const profileExists = await hasProfile(userId);
-      setLoading(false);
-      console.log('[LOGIN] signed in, profile exists:', profileExists);
-      if (profileExists) {
-        await claimPendingGuestScore(userId);
-        router.replace('/(tabs)/home');
-      } else {
-        router.replace('/profile-setup');
-      }
-    } else {
-      setLoading(false);
-      setError('Login failed. Please try again.');
-    }
-  };
-
-  const handleForgotPassword = async () => {
-    const normalizedEmail = email.trim().toLowerCase();
-
-    if (!normalizedEmail) {
-      setError('Enter your email first, then tap Forgot password.');
-      return;
-    }
-
-    if (!EMAIL_PATTERN.test(normalizedEmail)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
-    setError('');
-    setMessage('');
-    setResetLoading(true);
-
-    const redirectTo = Linking.createURL('/reset-password');
-    const result = await sendPasswordResetEmail(normalizedEmail, redirectTo);
-    setResetLoading(false);
+    const result = await updatePassword(password);
+    setLoading(false);
 
     if (result.error) {
       setError(result.error);
-    } else {
-      setMessage('Password reset link sent. Check your email.');
+      return;
     }
+
+    setMessage('Password updated. You can continue playing.');
+    setPassword('');
+    setConfirmPassword('');
   };
 
   return (
@@ -90,13 +53,13 @@ export default function LoginScreen() {
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/(tabs)/home')}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/login')}>
           <ArrowLeft color={COLORS.white} size={24} />
         </TouchableOpacity>
 
         <View style={styles.content}>
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Login to continue the battle</Text>
+          <Text style={styles.title}>Reset Password</Text>
+          <Text style={styles.subtitle}>Choose a new password for your TamWar account</Text>
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
           {message ? <Text style={styles.successText}>{message}</Text> : null}
@@ -104,41 +67,40 @@ export default function LoginScreen() {
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              placeholder="Email"
-              placeholderTextColor={COLORS.textMuted}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
+              placeholder="New Password"
               placeholderTextColor={COLORS.textMuted}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
             />
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm New Password"
+              placeholderTextColor={COLORS.textMuted}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+            />
           </View>
 
           <TouchableOpacity
-            style={styles.forgotLink}
-            onPress={handleForgotPassword}
-            disabled={resetLoading}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.forgotText}>{resetLoading ? 'Sending reset link...' : 'Forgot password?'}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleLogin}
+            onPress={handleReset}
             disabled={loading}
             activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>{loading ? 'Logging in...' : 'Login'}</Text>
+            <Text style={styles.buttonText}>{loading ? 'Updating...' : 'Update Password'}</Text>
           </TouchableOpacity>
+
+          {message ? (
+            <TouchableOpacity
+              style={styles.homeLink}
+              onPress={() => router.replace('/(tabs)/home')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.homeLinkText}>Go to TamWar</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -189,7 +151,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     gap: 16,
-    marginBottom: 12,
+    marginBottom: 32,
   },
   input: {
     backgroundColor: COLORS.surface,
@@ -216,12 +178,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: COLORS.background,
   },
-  forgotLink: {
-    alignSelf: 'flex-end',
-    marginBottom: 24,
-    paddingVertical: 6,
+  homeLink: {
+    marginTop: 18,
+    alignItems: 'center',
   },
-  forgotText: {
+  homeLinkText: {
     fontFamily: 'Inter-Bold',
     fontSize: 14,
     color: COLORS.white,

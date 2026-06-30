@@ -9,6 +9,13 @@ export async function signUpWithEmail(email: string, password: string): Promise<
   console.log('[AUTH] signup response email_confirmed_at:', data.user?.email_confirmed_at);
   console.log('[AUTH] signup session:', data.session ? 'exists' : 'null');
 
+  if (!data.session) {
+    const signInResult = await supabase.auth.signInWithPassword({ email, password });
+    if (signInResult.error) {
+      return { error: signInResult.error.message };
+    }
+  }
+
   return { userId: data.user?.id ?? '' };
 }
 
@@ -25,13 +32,6 @@ export async function signInWithEmail(email: string, password: string): Promise<
 
   console.log('[AUTH] login response email_confirmed_at:', data.user?.email_confirmed_at);
 
-  // Enforce verification on the frontend even if Supabase lets the login through
-  if (!data.user?.email_confirmed_at) {
-    console.log('[AUTH] user not verified after login, signing out');
-    await supabase.auth.signOut();
-    return { error: 'Please verify your email before logging in.' };
-  }
-
   return { userId: data.user?.id ?? '' };
 }
 
@@ -46,6 +46,18 @@ export async function resendVerificationEmail(email: string): Promise<{ error?: 
     type: 'signup',
     email,
   });
+  if (error) return { error: error.message };
+  return {};
+}
+
+export async function sendPasswordResetEmail(email: string, redirectTo?: string): Promise<{ error?: string }> {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, redirectTo ? { redirectTo } : undefined);
+  if (error) return { error: error.message };
+  return {};
+}
+
+export async function updatePassword(password: string): Promise<{ error?: string }> {
+  const { error } = await supabase.auth.updateUser({ password });
   if (error) return { error: error.message };
   return {};
 }
