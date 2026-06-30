@@ -1,5 +1,6 @@
 import { ScrollView, Text, View, Pressable } from 'react-native';
 import { router } from 'expo-router';
+import { Home } from 'lucide-react-native';
 
 export default function SettingsPage() {
   const items = [
@@ -14,9 +15,26 @@ export default function SettingsPage() {
       style={{ flex: 1, backgroundColor: '#111111' }}
       contentContainerStyle={{ padding: 24, paddingBottom: 60 }}
     >
-      <Text style={{ color: '#ffffff', fontSize: 30, fontWeight: 'bold', marginBottom: 24 }}>
-        Settings
-      </Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+        <Text style={{ color: '#ffffff', fontSize: 30, fontWeight: 'bold' }}>
+          Settings
+        </Text>
+        <Pressable
+          onPress={() => router.replace('/(tabs)/home')}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            backgroundColor: '#1f1f1f',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderWidth: 1,
+            borderColor: '#333333',
+          }}
+        >
+          <Home color="#ffffff" size={22} />
+        </Pressable>
+      </View>
 
       {items.map((item) => (
         <Pressable

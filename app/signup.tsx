@@ -53,7 +53,7 @@ export default function SignupScreen() {
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/(tabs)/home')}>
           <ArrowLeft color={COLORS.white} size={24} />
         </TouchableOpacity>
 

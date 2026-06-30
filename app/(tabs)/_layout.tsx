@@ -21,47 +21,48 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarAllowFontScaling: false,
         tabBarStyle: {
           backgroundColor: COLORS.surface,
           borderTopColor: COLORS.border,
           borderTopWidth: 1,
-          height: 64,
-          paddingBottom: 8,
+          height: 74,
+          paddingBottom: 12,
           paddingTop: 8,
         },
         tabBarActiveTintColor: COLORS.white,
         tabBarInactiveTintColor: COLORS.textMuted,
         tabBarLabelStyle: {
           fontFamily: 'Inter-SemiBold',
-          fontSize: 11,
+          fontSize: 12,
         },
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Battle',
+          title: 'Play',
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="leaderboard"
         options={{
-          title: 'Rankings',
+          title: 'Ranks',
           tabBarIcon: ({ color, size }) => <Trophy color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="totals"
         options={{
-          title: 'Totals',
+          title: 'Stats',
           tabBarIcon: ({ color, size }) => <BarChart3 color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: 'Me',
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />

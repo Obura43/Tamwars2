@@ -13,6 +13,9 @@
     },
     "android": {
       "package": "com.tamwar.app",
+      "permissions": [
+        "com.google.android.gms.permission.AD_ID"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#111111"

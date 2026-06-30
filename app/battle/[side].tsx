@@ -8,7 +8,6 @@ import { checkCooldown, saveGuestTapSession, saveTapSession } from '@/src/servic
 import { COLORS, GAME_DURATION } from '@/lib/constants';
 import { X } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { showInterstitial } from '@/components/InterstitialAd';
 
 const { width } = Dimensions.get('window');
@@ -89,7 +88,9 @@ export default function BattleScreen() {
     if (!user) {
       const result = await saveGuestTapSession(side as 'WANTAM' | 'TUTAM', tapCount);
       setSaving(false);
-      router.replace(`/result/${result.sessionId}`);
+      showInterstitial(() => {
+        router.replace(`/result/${result.sessionId}`);
+      });
       return;
     }
 
@@ -106,23 +107,11 @@ export default function BattleScreen() {
         return;
       }
 
-      // Count completed games
-      const gamesPlayed = Number(
-        (await AsyncStorage.getItem('gamesPlayed')) ?? '0'
-      ) + 1;
-
-      await AsyncStorage.setItem('gamesPlayed', gamesPlayed.toString());
-
       const goToResults = () => {
         router.replace(`/result/${result.sessionId}`);
       };
 
-      // Show an interstitial every 4 games
-      if (gamesPlayed % 4 === 0) {
-        showInterstitial(goToResults);
-      } else {
-        goToResults();
-      }
+      showInterstitial(goToResults);
     };
 
   const formatTime = (seconds: number) => {

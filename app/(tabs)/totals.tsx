@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { getSideStats, SideStats } from '@/src/services/totalsService';
 import { COLORS } from '@/lib/constants';
 import { BarChart3 } from 'lucide-react-native';
+import BannerAdvertisement from '@/components/BannerAd';
 
 export default function TotalsScreen() {
   const [stats, setStats] = useState<SideStats[]>([]);
@@ -106,6 +107,10 @@ export default function TotalsScreen() {
         <View style={styles.totalCard}>
           <Text style={styles.totalLabel}>Combined Total Taps</Text>
           <Text style={styles.totalValue}>{totalTaps.toLocaleString()}</Text>
+        </View>
+
+        <View style={styles.bannerContainer}>
+          <BannerAdvertisement />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -233,5 +238,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Black',
     fontSize: 36,
     color: COLORS.white,
+  },
+  bannerContainer: {
+    marginTop: 20,
+    minHeight: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

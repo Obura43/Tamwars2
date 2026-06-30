@@ -47,6 +47,8 @@ serve(async (req) => {
 
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
+    await supabaseAdmin.from('owned_virtual_assets').delete().eq('user_id', user.id);
+    await supabaseAdmin.from('tws_wallet_transactions').delete().eq('user_id', user.id);
     await supabaseAdmin.from('tap_sessions').delete().eq('user_id', user.id);
     await supabaseAdmin.from('supporters').delete().eq('user_id', user.id);
     await supabaseAdmin.from('profiles').delete().eq('id', user.id);

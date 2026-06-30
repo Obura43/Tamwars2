@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { getLeaderboard, LeaderboardEntry } from '@/src/services/leaderboardService';
 import { COLORS } from '@/lib/constants';
 import { Trophy } from 'lucide-react-native';
+import BannerAdvertisement from '@/components/BannerAd';
 
 type TimeFilter = 'today' | 'week' | 'alltime';
 type SideFilter = 'all' | 'WANTAM' | 'TUTAM';
@@ -40,6 +41,12 @@ export default function LeaderboardScreen() {
     if (rank === 3) return COLORS.bronze;
     return COLORS.textMuted;
   };
+
+  const renderBanner = () => (
+    <View style={styles.bannerContainer}>
+      <BannerAdvertisement />
+    </View>
+  );
 
   const renderItem = ({ item, index }: { item: LeaderboardEntry; index: number }) => {
     const displayRank = index + 1;
@@ -103,23 +110,30 @@ export default function LeaderboardScreen() {
       </View>
 
       {error ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
+        <>
+          <View style={styles.emptyContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+          {renderBanner()}
+        </>
       ) : loading ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Loading...</Text>
         </View>
       ) : entries.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No scores yet. Be the first!</Text>
-        </View>
+        <>
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No scores yet. Be the first!</Text>
+          </View>
+          {renderBanner()}
+        </>
       ) : (
         <FlatList
           data={entries}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
+          ListFooterComponent={renderBanner}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.white} />}
         />
       )}
@@ -196,6 +210,12 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: 20,
     paddingBottom: 32,
+  },
+  bannerContainer: {
+    marginTop: 16,
+    minHeight: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   row: {
     flexDirection: 'row',

@@ -5,7 +5,7 @@ import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider } from '@/lib/auth-context';
 import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold, Inter_900Black } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
-//import mobileAds from 'react-native-google-mobile-ads';
+import { initializeMobileAds } from '@/components/MobileAds';
 import { loadInterstitial } from '@/components/InterstitialAd';
 
 SplashScreen.preventAutoHideAsync();
@@ -24,8 +24,8 @@ export default function RootLayout() {
     async function initializeApp() {
       if (fontsLoaded || fontError) {
         try {
-          // await mobileAds().initialize();
-          // loadInterstitial();
+          await initializeMobileAds();
+          loadInterstitial();
           console.log('AdMob initialized');
         } catch (err) {
           console.error('AdMob initialization failed:', err);
@@ -52,6 +52,10 @@ export default function RootLayout() {
         <Stack.Screen name="terms-of-use" />
         <Stack.Screen name="contact" />
         <Stack.Screen name="settings" />
+        <Stack.Screen name="marketplace" />
+        <Stack.Screen name="drive" />
+        <Stack.Screen name="housing/[assetId]" />
+        <Stack.Screen name="car/[assetId]" />
         <Stack.Screen name="guest-finish" />
         <Stack.Screen name="account-deletion" />
         <Stack.Screen name="battle/[side]" options={{ presentation: 'fullScreenModal' }} />

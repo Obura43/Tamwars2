@@ -1,5 +1,5 @@
 export function loadInterstitial() {}
 
-export function showInterstitial(onComplete: () => void) {
+export async function showInterstitial(onComplete: () => void) {
   onComplete();
 }

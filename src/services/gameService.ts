@@ -156,6 +156,18 @@ export async function getUserStats(userId: string): Promise<{ bestScore: number;
   return { bestScore: best, totalGames: data.length, totalTaps: total };
 }
 
+export async function getUserTapHistory(userId: string, limit = 20): Promise<TapSession[]> {
+  const { data } = await supabase
+    .from('tap_sessions')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('validated', true)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  return data ?? [];
+}
+
 export async function getGuestStats(): Promise<{ bestScore: number; totalGames: number; totalTaps: number }> {
   const sessions = (await getGuestSessions()).filter((session) => session.validated);
   if (sessions.length === 0) {

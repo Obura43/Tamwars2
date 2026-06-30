@@ -3,7 +3,7 @@ import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads'
 
 const adUnitId = __DEV__
   ? TestIds.BANNER
-  : 'ca-app-pub-6621272459770552/1026436936';
+  : 'ca-app-pub-6621272459770552/9110533400';
 
 export default function BannerAdvertisement() {
   return (
